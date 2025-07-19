@@ -1,5 +1,6 @@
-package com.streamnz.config.security;
+package com.streamnz.filter;
 
+import com.streamnz.config.security.JwtUtils;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -16,6 +17,10 @@ import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
 
+/**
+ * JWT Authentication Filter
+ * Handles JWT token validation and user authentication
+ */
 @Slf4j
 @Component
 @RequiredArgsConstructor
@@ -55,6 +60,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                     );
                     authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
                     SecurityContextHolder.getContext().setAuthentication(authToken);
+                    log.debug("JWT authentication successful for user: {}", username);
                 }
             }
         } catch (Exception e) {
