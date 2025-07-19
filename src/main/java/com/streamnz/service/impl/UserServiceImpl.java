@@ -9,6 +9,7 @@ import com.streamnz.model.dto.UserCreateDTO;
 import com.streamnz.model.dto.UserUpdateDTO;
 import com.streamnz.query.UserQueryBuilder;
 import com.streamnz.service.UserService;
+import com.streamnz.config.SnowflakeIdGenerator;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -27,6 +28,7 @@ public class UserServiceImpl implements UserService {
     private final UserMapper userMapper;
     private final PasswordEncoder passwordEncoder;
     private final UserQueryBuilder userQueryBuilder;
+    private final SnowflakeIdGenerator snowflakeIdGenerator;
 
 
     @Override
@@ -36,7 +38,7 @@ public class UserServiceImpl implements UserService {
         return userMapper.selectPage(page, queryWrapper);
     }
 
-    // 查询构建逻辑已迁移到UserQueryBuilder类中，提高代码的可维护性和可测试性
+    // Query building logic has been migrated to UserQueryBuilder class for better maintainability and testability
 
     @Override
     public User findById(Long id) {
@@ -52,27 +54,29 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public User createUser(UserCreateDTO createDTO) {
-        // 设置默认值
+        // Set default values
         createDTO.setDefaults();
         
-        // 检查用户名是否已存在
+        // Check username uniqueness
         User existingUser = findByUsername(createDTO.getUsername());
         if (existingUser != null) {
-            throw new IllegalArgumentException("用户名已存在: " + createDTO.getUsername());
+            throw new IllegalArgumentException("Username already exists: " + createDTO.getUsername());
         }
         
-        // 检查邮箱是否已存在
+        // Check email uniqueness
         if (StringUtils.hasText(createDTO.getEmail())) {
             QueryWrapper<User> queryWrapper = new QueryWrapper<>();
             queryWrapper.eq("email", createDTO.getEmail());
             User existingEmailUser = userMapper.selectOne(queryWrapper);
             if (existingEmailUser != null) {
-                throw new IllegalArgumentException("邮箱已存在: " + createDTO.getEmail());
+                throw new IllegalArgumentException("Email already exists: " + createDTO.getEmail());
             }
         }
         
-        // 创建用户实体
+        // Create user entity
         User user = new User();
+        // Generate unique ID using Snowflake algorithm
+        user.setId(snowflakeIdGenerator.nextId());
         user.setUsername(createDTO.getUsername());
         user.setPassword(passwordEncoder.encode(createDTO.getPassword()));
         user.setEmail(createDTO.getEmail());
@@ -88,6 +92,11 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public User createUser(User user) {
+        // Generate unique ID using Snowflake algorithm if not provided
+        if (user.getId() == null) {
+            user.setId(snowflakeIdGenerator.nextId());
+        }
+        
         // Encode password before saving
         user.setPassword(passwordEncoder.encode(user.getPassword()));
         user.setCreatedAt(LocalDateTime.now());
@@ -112,36 +121,36 @@ public class UserServiceImpl implements UserService {
             return null;
         }
         
-        // 检查是否有任何字段被更新
+        // Check if any field is updated
         if (!updateDTO.hasAnyField()) {
-            throw new IllegalArgumentException("至少需要提供一个要更新的字段");
+            throw new IllegalArgumentException("At least one field must be provided for update");
         }
         
-        // 检查用户名唯一性（如果更新用户名）
+        // Check username uniqueness (if updating username)
         if (StringUtils.hasText(updateDTO.getUsername()) && 
             !updateDTO.getUsername().equals(existingUser.getUsername())) {
             User existingUsernameUser = findByUsername(updateDTO.getUsername());
             if (existingUsernameUser != null) {
-                throw new IllegalArgumentException("用户名已存在: " + updateDTO.getUsername());
+                throw new IllegalArgumentException("Username already exists: " + updateDTO.getUsername());
             }
         }
         
-        // 检查邮箱唯一性（如果更新邮箱）
+        // Check email uniqueness (if updating email)
         if (StringUtils.hasText(updateDTO.getEmail()) && 
             !updateDTO.getEmail().equals(existingUser.getEmail())) {
             QueryWrapper<User> queryWrapper = new QueryWrapper<>();
             queryWrapper.eq("email", updateDTO.getEmail());
             User existingEmailUser = userMapper.selectOne(queryWrapper);
             if (existingEmailUser != null) {
-                throw new IllegalArgumentException("邮箱已存在: " + updateDTO.getEmail());
+                throw new IllegalArgumentException("Email already exists: " + updateDTO.getEmail());
             }
         }
         
-        // 更新用户信息
+        // Update user information
         User user = new User();
         user.setId(updateDTO.getId());
         
-        // 只更新非空字段
+        // Only update non-empty fields
         if (StringUtils.hasText(updateDTO.getUsername())) {
             user.setUsername(updateDTO.getUsername());
         } else {

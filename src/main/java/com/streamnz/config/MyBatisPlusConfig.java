@@ -14,17 +14,19 @@ import javax.sql.DataSource;
 
 /**
  * MyBatis-Plus configuration
+ * Configures pagination and other MyBatis-Plus features
  */
 @Configuration
 public class MyBatisPlusConfig {
 
     /**
-     * Configure MyBatis-Plus plugins
+     * Configure MyBatis-Plus interceptor
+     * Adds pagination support
+     * @return MybatisPlusInterceptor
      */
     @Bean
     public MybatisPlusInterceptor mybatisPlusInterceptor() {
         MybatisPlusInterceptor interceptor = new MybatisPlusInterceptor();
-        // Add pagination support
         interceptor.addInnerInterceptor(new PaginationInnerInterceptor(DbType.SQLITE));
         return interceptor;
     }

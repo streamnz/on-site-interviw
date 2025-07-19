@@ -5,53 +5,53 @@ import lombok.Data;
 import jakarta.validation.constraints.*;
 
 /**
- * 用户创建DTO
- * 用于封装创建用户时的请求参数
+ * User creation DTO
+ * Used to encapsulate user creation request parameters
  */
 @Data
-@Schema(description = "用户创建请求参数")
+@Schema(description = "User creation request parameters")
 public class UserCreateDTO {
 
-    @Schema(description = "用户名", example = "john_doe", required = true)
-    @NotBlank(message = "用户名不能为空")
-    @Size(min = 3, max = 50, message = "用户名长度必须在3-50个字符之间")
-    @Pattern(regexp = "^[a-zA-Z0-9_]+$", message = "用户名只能包含字母、数字和下划线")
+    @Schema(description = "Username", example = "john_doe", required = true)
+    @NotBlank(message = "Username cannot be empty")
+    @Size(min = 3, max = 50, message = "Username length must be between 3-50 characters")
+    @Pattern(regexp = "^[a-zA-Z0-9_]+$", message = "Username can only contain letters, numbers and underscores")
     private String username;
 
-    @Schema(description = "密码", example = "password123", required = true)
-    @NotBlank(message = "密码不能为空")
-    @Size(min = 6, max = 100, message = "密码长度必须在6-100个字符之间")
+    @Schema(description = "Password", example = "password123", required = true)
+    @NotBlank(message = "Password cannot be empty")
+    @Size(min = 6, max = 100, message = "Password length must be between 6-100 characters")
     @Pattern(regexp = "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)[a-zA-Z\\d@$!%*?&]{6,}$", 
-             message = "密码必须包含至少一个小写字母、一个大写字母和一个数字")
+             message = "Password must contain at least one lowercase letter, one uppercase letter and one number")
     private String password;
 
-    @Schema(description = "确认密码", example = "password123", required = true)
-    @NotBlank(message = "确认密码不能为空")
+    @Schema(description = "Confirm password", example = "password123", required = true)
+    @NotBlank(message = "Confirm password cannot be empty")
     private String confirmPassword;
 
-    @Schema(description = "邮箱", example = "john.doe@example.com", required = true)
-    @NotBlank(message = "邮箱不能为空")
-    @Email(message = "邮箱格式不正确")
-    @Size(max = 100, message = "邮箱长度不能超过100个字符")
+    @Schema(description = "Email", example = "john.doe@example.com", required = true)
+    @NotBlank(message = "Email cannot be empty")
+    @Email(message = "Invalid email format")
+    @Size(max = 100, message = "Email length cannot exceed 100 characters")
     private String email;
 
-    @Schema(description = "全名", example = "John Doe", required = true)
-    @NotBlank(message = "全名不能为空")
-    @Size(min = 2, max = 100, message = "全名长度必须在2-100个字符之间")
-    @Pattern(regexp = "^[\\u4e00-\\u9fa5a-zA-Z\\s]+$", message = "全名只能包含中文、英文和空格")
+    @Schema(description = "Full name", example = "John Doe", required = true)
+    @NotBlank(message = "Full name cannot be empty")
+    @Size(min = 2, max = 100, message = "Full name length must be between 2-100 characters")
+    @Pattern(regexp = "^[a-zA-Z\\s]+$", message = "Full name can only contain letters and spaces")
     private String fullName;
 
-    @Schema(description = "用户角色", example = "USER", defaultValue = "USER")
-    @Pattern(regexp = "^(ADMIN|MANAGER|USER)$", message = "角色只能是ADMIN、MANAGER或USER")
+    @Schema(description = "User role", example = "USER", defaultValue = "USER")
+    @Pattern(regexp = "^(ADMIN|MANAGER|USER)$", message = "Role can only be ADMIN, MANAGER or USER")
     private String role;
 
-    @Schema(description = "启用状态", example = "true", defaultValue = "true")
+    @Schema(description = "Enabled status", example = "true", defaultValue = "true")
     private Boolean enabled;
 
     /**
-     * 自定义校验：密码确认
+     * Custom validation: password confirmation
      */
-    @AssertTrue(message = "密码和确认密码不匹配")
+    @AssertTrue(message = "Password and confirm password do not match")
     public boolean isPasswordConfirmed() {
         if (password == null || confirmPassword == null) {
             return false;
@@ -60,9 +60,9 @@ public class UserCreateDTO {
     }
 
     /**
-     * 自定义校验：用户名不能包含敏感词
+     * Custom validation: username cannot contain sensitive words
      */
-    @AssertTrue(message = "用户名包含敏感词，请更换")
+    @AssertTrue(message = "Username contains sensitive words, please change")
     public boolean isUsernameNotSensitive() {
         if (username == null) {
             return true;
@@ -78,9 +78,9 @@ public class UserCreateDTO {
     }
 
     /**
-     * 自定义校验：邮箱域名检查
+     * Custom validation: email domain check
      */
-    @AssertTrue(message = "邮箱域名不被支持")
+    @AssertTrue(message = "Email domain is not supported")
     public boolean isEmailDomainValid() {
         if (email == null) {
             return true;
@@ -96,7 +96,7 @@ public class UserCreateDTO {
     }
 
     /**
-     * 设置默认值
+     * Set default values
      */
     public void setDefaults() {
         if (role == null || role.trim().isEmpty()) {

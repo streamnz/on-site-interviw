@@ -12,14 +12,14 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * 全局异常处理器
+ * Global exception handler
  */
 @Slf4j
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
     /**
-     * 处理参数校验异常
+     * Handle parameter validation exceptions
      */
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<Map<String, Object>> handleValidationExceptions(MethodArgumentNotValidException ex) {
@@ -32,16 +32,16 @@ public class GlobalExceptionHandler {
             errors.put(fieldName, errorMessage);
         });
         
-        response.put("message", "参数校验失败");
+        response.put("message", "Parameter validation failed");
         response.put("errors", errors);
         response.put("status", HttpStatus.BAD_REQUEST.value());
         
-        log.warn("参数校验失败: {}", errors);
+        log.warn("Parameter validation failed: {}", errors);
         return ResponseEntity.badRequest().body(response);
     }
 
     /**
-     * 处理约束校验异常
+     * Handle constraint validation exceptions
      */
     @ExceptionHandler(jakarta.validation.ConstraintViolationException.class)
     public ResponseEntity<Map<String, Object>> handleConstraintViolationException(
@@ -55,25 +55,25 @@ public class GlobalExceptionHandler {
             errors.put(fieldName, errorMessage);
         });
         
-        response.put("message", "参数校验失败");
+        response.put("message", "Parameter validation failed");
         response.put("errors", errors);
         response.put("status", HttpStatus.BAD_REQUEST.value());
         
-        log.warn("约束校验失败: {}", errors);
+        log.warn("Constraint validation failed: {}", errors);
         return ResponseEntity.badRequest().body(response);
     }
 
     /**
-     * 处理通用异常
+     * Handle generic exceptions
      */
     @ExceptionHandler(Exception.class)
     public ResponseEntity<Map<String, Object>> handleGenericException(Exception ex) {
         Map<String, Object> response = new HashMap<>();
-        response.put("message", "服务器内部错误");
+        response.put("message", "Internal server error");
         response.put("error", ex.getMessage());
         response.put("status", HttpStatus.INTERNAL_SERVER_ERROR.value());
         
-        log.error("服务器内部错误", ex);
+        log.error("Internal server error", ex);
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
     }
 } 

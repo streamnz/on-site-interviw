@@ -1,27 +1,42 @@
-# Application Configuration
-spring:
-  application:
-    name: on-site-interview
-  datasource:
-    url: jdbc:sqlite:sql-lite/identifier.sqlite
-    driver-class-name: org.sqlite.JDBC
-  security:
-    user:
-      name: admin
-      password: admin
-  sql:
-    init:
-      mode: always
-      schema-locations: classpath:db/schema.sql
-
 server:
   port: 8080
 
+spring:
+  application:
+    name: user-management-system
 
-# Swagger Documentation Configuration
+  # Database configuration
+  datasource:
+    driver-class-name: org.sqlite.JDBC
+    url: jdbc:sqlite:sql-lite/identifier.sqlite
+    username:
+    password:
+
+  # MyBatis-Plus configuration
+  mybatis-plus:
+    configuration:
+      map-underscore-to-camel-case: true
+      log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+    global-config:
+      db-config:
+        id-type: auto
+        logic-delete-field: deleted
+        logic-delete-value: 1
+        logic-not-delete-value: 0
+
+# Logging configuration
+logging:
+  level:
+    com.streamnz: DEBUG
+    org.springframework.security: DEBUG
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n"
+
+# Swagger configuration
 springdoc:
   api-docs:
-    path: /api-docs
+    path: /v3/api-docs
   swagger-ui:
     path: /swagger-ui.html
-    operationsSorter: method
+    tags-sorter: alpha
+    operations-sorter: alpha

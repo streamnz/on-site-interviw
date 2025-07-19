@@ -7,16 +7,16 @@ import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 
 /**
- * 用户查询构建器
- * 负责将UserQueryDTO转换为MyBatis-Plus的QueryWrapper
+ * User query builder
+ * Responsible for converting UserQueryDTO to MyBatis-Plus QueryWrapper
  */
 @Component
 public class UserQueryBuilder {
 
     /**
-     * 构建动态查询条件
-     * @param queryDTO 查询条件DTO
-     * @return QueryWrapper对象
+     * Build dynamic query conditions
+     * @param queryDTO Query condition DTO
+     * @return QueryWrapper object
      */
     public QueryWrapper<User> buildQueryWrapper(UserQueryDTO queryDTO) {
         QueryWrapper<User> queryWrapper = new QueryWrapper<>();
@@ -25,32 +25,32 @@ public class UserQueryBuilder {
             return queryWrapper;
         }
 
-        // 用户名模糊搜索
+        // Username fuzzy search
         if (StringUtils.hasText(queryDTO.getUsername())) {
             queryWrapper.like("username", queryDTO.getUsername());
         }
 
-        // 邮箱模糊搜索
+        // Email fuzzy search
         if (StringUtils.hasText(queryDTO.getEmail())) {
             queryWrapper.like("email", queryDTO.getEmail());
         }
 
-        // 全名模糊搜索
+        // Full name fuzzy search
         if (StringUtils.hasText(queryDTO.getFullName())) {
             queryWrapper.like("full_name", queryDTO.getFullName());
         }
 
-        // 角色精确匹配
+        // Role exact match
         if (StringUtils.hasText(queryDTO.getRole())) {
             queryWrapper.eq("role", queryDTO.getRole());
         }
 
-        // 启用状态精确匹配
+        // Enabled status exact match
         if (queryDTO.getEnabled() != null) {
             queryWrapper.eq("enabled", queryDTO.getEnabled());
         }
 
-        // 创建时间范围查询
+        // Created time range query
         if (queryDTO.getCreatedAtStartAsDateTime() != null) {
             queryWrapper.ge("created_at", queryDTO.getCreatedAtStartAsDateTime());
         }
@@ -58,7 +58,7 @@ public class UserQueryBuilder {
             queryWrapper.le("created_at", queryDTO.getCreatedAtEndAsDateTime());
         }
 
-        // 更新时间范围查询
+        // Updated time range query
         if (queryDTO.getUpdatedAtStartAsDateTime() != null) {
             queryWrapper.ge("updated_at", queryDTO.getUpdatedAtStartAsDateTime());
         }
@@ -66,12 +66,12 @@ public class UserQueryBuilder {
             queryWrapper.le("updated_at", queryDTO.getUpdatedAtEndAsDateTime());
         }
 
-        // 邮箱域名筛选
+        // Email domain filter
         if (StringUtils.hasText(queryDTO.getEmailDomain())) {
             queryWrapper.like("email", "@" + queryDTO.getEmailDomain());
         }
 
-        // 默认按创建时间降序排列
+        // Default sort by created time descending
         queryWrapper.orderByDesc("created_at");
 
         return queryWrapper;

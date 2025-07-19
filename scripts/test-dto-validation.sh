@@ -1,13 +1,13 @@
 #!/bin/bash
 
-# 测试UserCreateDTO和UserUpdateDTO的校验功能
+# Test UserCreateDTO and UserUpdateDTO validation functionality
 BASE_URL="http://localhost:8080/api/users"
 
-echo "🧪 开始测试UserCreateDTO和UserUpdateDTO校验功能..."
+echo "🧪 Starting UserCreateDTO and UserUpdateDTO validation tests..."
 echo "=========================================="
 
-# 测试1: 创建用户 - 成功案例
-echo "📝 测试1: 创建用户 - 成功案例"
+# Test 1: Create user - Success case
+echo "📝 Test 1: Create user - Success case"
 curl -X POST "${BASE_URL}/create" \
   -H "Content-Type: application/json" \
   -d '{
@@ -22,8 +22,8 @@ curl -X POST "${BASE_URL}/create" \
 
 echo -e "\n"
 
-# 测试2: 创建用户 - 密码不匹配
-echo "📝 测试2: 创建用户 - 密码不匹配"
+# Test 2: Create user - Password mismatch
+echo "📝 Test 2: Create user - Password mismatch"
 curl -X POST "${BASE_URL}/create" \
   -H "Content-Type: application/json" \
   -d '{
@@ -37,8 +37,8 @@ curl -X POST "${BASE_URL}/create" \
 
 echo -e "\n"
 
-# 测试3: 创建用户 - 用户名包含敏感词
-echo "📝 测试3: 创建用户 - 用户名包含敏感词"
+# Test 3: Create user - Username contains sensitive words
+echo "📝 Test 3: Create user - Username contains sensitive words"
 curl -X POST "${BASE_URL}/create" \
   -H "Content-Type: application/json" \
   -d '{
@@ -52,8 +52,8 @@ curl -X POST "${BASE_URL}/create" \
 
 echo -e "\n"
 
-# 测试4: 创建用户 - 邮箱格式错误
-echo "📝 测试4: 创建用户 - 邮箱格式错误"
+# Test 4: Create user - Invalid email format
+echo "📝 Test 4: Create user - Invalid email format"
 curl -X POST "${BASE_URL}/create" \
   -H "Content-Type: application/json" \
   -d '{
@@ -67,8 +67,8 @@ curl -X POST "${BASE_URL}/create" \
 
 echo -e "\n"
 
-# 测试5: 创建用户 - 密码强度不足
-echo "📝 测试5: 创建用户 - 密码强度不足"
+# Test 5: Create user - Weak password
+echo "📝 Test 5: Create user - Weak password"
 curl -X POST "${BASE_URL}/create" \
   -H "Content-Type: application/json" \
   -d '{
@@ -82,8 +82,8 @@ curl -X POST "${BASE_URL}/create" \
 
 echo -e "\n"
 
-# 测试6: 创建用户 - 邮箱域名不支持
-echo "📝 测试6: 创建用户 - 邮箱域名不支持"
+# Test 6: Create user - Unsupported email domain
+echo "📝 Test 6: Create user - Unsupported email domain"
 curl -X POST "${BASE_URL}/create" \
   -H "Content-Type: application/json" \
   -d '{
@@ -97,8 +97,8 @@ curl -X POST "${BASE_URL}/create" \
 
 echo -e "\n"
 
-# 先创建一个用户用于更新测试
-echo "📝 创建测试用户用于更新测试..."
+# Create a test user for update tests
+echo "📝 Creating test user for update tests..."
 CREATE_RESPONSE=$(curl -s -X POST "${BASE_URL}/create" \
   -H "Content-Type: application/json" \
   -d '{
@@ -111,12 +111,12 @@ CREATE_RESPONSE=$(curl -s -X POST "${BASE_URL}/create" \
   }')
 
 USER_ID=$(echo $CREATE_RESPONSE | jq -r '.id')
-echo "创建的用户ID: $USER_ID"
+echo "Created user ID: $USER_ID"
 
 echo -e "\n"
 
-# 测试7: 更新用户 - 成功案例
-echo "📝 测试7: 更新用户 - 成功案例"
+# Test 7: Update user - Success case
+echo "📝 Test 7: Update user - Success case"
 curl -X PUT "${BASE_URL}/update" \
   -H "Content-Type: application/json" \
   -d "{
@@ -128,8 +128,8 @@ curl -X PUT "${BASE_URL}/update" \
 
 echo -e "\n"
 
-# 测试8: 更新用户 - 没有提供任何字段
-echo "📝 测试8: 更新用户 - 没有提供任何字段"
+# Test 8: Update user - No fields provided
+echo "📝 Test 8: Update user - No fields provided"
 curl -X PUT "${BASE_URL}/update" \
   -H "Content-Type: application/json" \
   -d "{
@@ -138,8 +138,8 @@ curl -X PUT "${BASE_URL}/update" \
 
 echo -e "\n"
 
-# 测试9: 更新用户 - 密码不匹配
-echo "📝 测试9: 更新用户 - 密码不匹配"
+# Test 9: Update user - Password mismatch
+echo "📝 Test 9: Update user - Password mismatch"
 curl -X PUT "${BASE_URL}/update" \
   -H "Content-Type: application/json" \
   -d "{
@@ -151,8 +151,8 @@ curl -X PUT "${BASE_URL}/update" \
 
 echo -e "\n"
 
-# 测试10: 更新用户 - 用户名包含敏感词
-echo "📝 测试10: 更新用户 - 用户名包含敏感词"
+# Test 10: Update user - Username contains sensitive words
+echo "📝 Test 10: Update user - Username contains sensitive words"
 curl -X PUT "${BASE_URL}/update" \
   -H "Content-Type: application/json" \
   -d "{
@@ -163,8 +163,8 @@ curl -X PUT "${BASE_URL}/update" \
 
 echo -e "\n"
 
-# 测试11: 更新用户 - 缺少ID字段
-echo "📝 测试11: 更新用户 - 缺少ID字段"
+# Test 11: Update user - Missing ID field
+echo "📝 Test 11: Update user - Missing ID field"
 curl -X PUT "${BASE_URL}/update" \
   -H "Content-Type: application/json" \
   -d '{
@@ -174,8 +174,8 @@ curl -X PUT "${BASE_URL}/update" \
 
 echo -e "\n"
 
-# 测试12: 更新用户 - ID无效
-echo "📝 测试12: 更新用户 - ID无效"
+# Test 12: Update user - Invalid ID
+echo "📝 Test 12: Update user - Invalid ID"
 curl -X PUT "${BASE_URL}/update" \
   -H "Content-Type: application/json" \
   -d '{
@@ -186,5 +186,5 @@ curl -X PUT "${BASE_URL}/update" \
 
 echo -e "\n"
 
-echo "✅ 所有测试完成！"
+echo "✅ All tests completed!"
 echo "==========================================" 

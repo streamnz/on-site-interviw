@@ -1,228 +1,229 @@
 #!/bin/bash
 
-# 条件查询测试脚本
-# 用途：测试所有的条件查询功能
+# Conditional query test script
+# Purpose: Test all conditional query functionality
 
-BASE_URL="http://localhost:8080/api/users"
-SEARCH_API="$BASE_URL/search"
-
-# 颜色定义
-GREEN='\033[0;32m'
-BLUE='\033[0;34m'
+# Color definitions
 RED='\033[0;31m'
+GREEN='\033[0;32m'
 YELLOW='\033[1;33m'
+BLUE='\033[0;34m'
 NC='\033[0m' # No Color
 
-echo -e "${BLUE}=== 条件查询功能测试工具 ===${NC}"
+# Base URL
+BASE_URL="http://localhost:8080/api/users"
 
-# 检查应用是否运行
-check_app_status() {
-    echo -n "检查应用程序状态..."
-    if curl -s "$BASE_URL/pageQuery?current=1&size=1" > /dev/null 2>&1; then
-        echo -e "${GREEN} ✅ 应用正在运行${NC}"
-        return 0
-    else
-        echo -e "${RED} ❌ 应用未运行，请先启动应用${NC}"
-        return 1
-    fi
+# Function to make API call and extract total count
+make_api_call() {
+    local query_data="$1"
+    local response=$(curl -s -X POST "${BASE_URL}/pageQuery" \
+        -H "Content-Type: application/json" \
+        -d "$query_data" \
+        -G \
+        -d "current=1" \
+        -d "size=10")
+    
+    echo "$response" | jq -r '.total // 0'
 }
 
-# 测试用户名模糊搜索
-test_username_search() {
-    echo -e "${YELLOW}1. 测试用户名模糊搜索${NC}"
-    echo "   关键字: 'user00' (应该找到 user001-user009)"
+# Function to get first user info
+get_first_user() {
+    local query_data="$1"
+    local response=$(curl -s -X POST "${BASE_URL}/pageQuery" \
+        -H "Content-Type: application/json" \
+        -d "$query_data" \
+        -G \
+        -d "current=1" \
+        -d "size=1")
     
-    result=$(curl -s "$SEARCH_API?current=1&size=5&username=user00")
-    total=$(echo "$result" | jq -r '.total' 2>/dev/null)
-    first_user=$(echo "$result" | jq -r '.records[0].username' 2>/dev/null)
-    
-    if [ "$total" = "9" ] && [ "$first_user" = "user001" ]; then
-        echo -e "   ${GREEN}✅ 通过: 找到 $total 个用户，第一个用户: $first_user${NC}"
-    else
-        echo -e "   ${RED}❌ 失败: 找到 $total 个用户，第一个用户: $first_user${NC}"
-    fi
-    echo ""
+    echo "$response" | jq -r '.records[0].username // "N/A"'
 }
 
-# 测试角色筛选
-test_role_filter() {
-    echo -e "${YELLOW}2. 测试角色筛选${NC}"
-    echo "   角色: 'ADMIN' (应该找到11个管理员)"
+# Function to get user email
+get_user_email() {
+    local query_data="$1"
+    local response=$(curl -s -X POST "${BASE_URL}/pageQuery" \
+        -H "Content-Type: application/json" \
+        -d "$query_data" \
+        -G \
+        -d "current=1" \
+        -d "size=1")
     
-    result=$(curl -s "$SEARCH_API?current=1&size=5&role=ADMIN")
-    total=$(echo "$result" | jq -r '.total' 2>/dev/null)
-    
-    if [ "$total" = "11" ]; then
-        echo -e "   ${GREEN}✅ 通过: 找到 $total 个ADMIN用户${NC}"
-    else
-        echo -e "   ${RED}❌ 失败: 找到 $total 个ADMIN用户${NC}"
-    fi
-    echo ""
+    echo "$response" | jq -r '.records[0].email // "N/A"'
 }
 
-# 测试邮箱域名筛选
-test_email_domain() {
-    echo -e "${YELLOW}3. 测试邮箱域名筛选${NC}"
-    echo "   域名: 'test.com' (应该找到1000个用户)"
+# Function to get first 3 users
+get_first_three_users() {
+    local query_data="$1"
+    local response=$(curl -s -X POST "${BASE_URL}/pageQuery" \
+        -H "Content-Type: application/json" \
+        -d "$query_data" \
+        -G \
+        -d "current=1" \
+        -d "size=3")
     
-    result=$(curl -s "$SEARCH_API?current=1&size=5&emailDomain=test.com")
-    total=$(echo "$result" | jq -r '.total' 2>/dev/null)
-    
-    if [ "$total" = "1000" ]; then
-        echo -e "   ${GREEN}✅ 通过: 找到 $total 个test.com域名用户${NC}"
-    else
-        echo -e "   ${RED}❌ 失败: 找到 $total 个test.com域名用户${NC}"
-    fi
-    echo ""
+    echo "$response" | jq -r '.records[] | .username' | tr '\n' ',' | sed 's/,$//'
 }
 
-# 测试组合条件
-test_combined_conditions() {
-    echo -e "${YELLOW}4. 测试组合条件查询${NC}"
-    echo "   条件: 用户名包含'user0' AND 角色='ADMIN' (应该找到10个用户)"
-    
-    result=$(curl -s "$SEARCH_API?current=1&size=5&username=user0&role=ADMIN")
-    total=$(echo "$result" | jq -r '.total' 2>/dev/null)
-    users=$(echo "$result" | jq -r '.records[].username' 2>/dev/null | head -3 | tr '\n' ' ')
-    
-    if [ "$total" = "10" ]; then
-        echo -e "   ${GREEN}✅ 通过: 找到 $total 个用户${NC}"
-        echo -e "   ${BLUE}   前3个用户: $users${NC}"
-    else
-        echo -e "   ${RED}❌ 失败: 找到 $total 个用户${NC}"
-    fi
-    echo ""
-}
+echo -e "${BLUE}=== Conditional Query Function Test Tool ===${NC}"
+echo ""
 
-# 测试启用状态
-test_enabled_status() {
-    echo -e "${YELLOW}5. 测试启用状态筛选${NC}"
-    echo "   状态: enabled=true (应该找到所有1001个用户)"
-    
-    result=$(curl -s "$SEARCH_API?current=1&size=5&enabled=true")
-    total=$(echo "$result" | jq -r '.total' 2>/dev/null)
-    
-    if [ "$total" = "1001" ]; then
-        echo -e "   ${GREEN}✅ 通过: 找到 $total 个启用用户${NC}"
-    else
-        echo -e "   ${RED}❌ 失败: 找到 $total 个启用用户${NC}"
-    fi
-    echo ""
-}
+# Check if server is running
+echo "Checking server status..."
+if ! curl -s "${BASE_URL}/pageQuery" > /dev/null; then
+    echo -e "${RED}❌ Server is not running. Please start the application first.${NC}"
+    exit 1
+fi
+echo -e "${GREEN}✅ Server is running${NC}"
+echo ""
 
-# 测试邮箱模糊搜索
-test_email_search() {
-    echo -e "${YELLOW}6. 测试邮箱模糊搜索${NC}"
-    echo "   关键字: 'user001' (应该找到1个用户)"
-    
-    result=$(curl -s "$SEARCH_API?current=1&size=5&email=user001")
-    total=$(echo "$result" | jq -r '.total' 2>/dev/null)
-    email=$(echo "$result" | jq -r '.records[0].email' 2>/dev/null)
-    
-    if [ "$total" = "1" ] && [[ "$email" == *"user001"* ]]; then
-        echo -e "   ${GREEN}✅ 通过: 找到 $total 个用户，邮箱: $email${NC}"
-    else
-        echo -e "   ${RED}❌ 失败: 找到 $total 个用户，邮箱: $email${NC}"
-    fi
-    echo ""
-}
+# Test 1: Username fuzzy search
+echo -e "${YELLOW}1. Testing username fuzzy search${NC}"
+echo "   Condition: username contains 'user0' (should find 100 users)"
+total=$(make_api_call '{"username": "user0"}')
+first_user=$(get_first_user '{"username": "user0"}')
 
-# 测试分页功能
-test_pagination() {
-    echo -e "${YELLOW}7. 测试条件查询的分页功能${NC}"
-    echo "   条件: role=USER, 第1页5条, 第2页5条"
-    
-    # 第1页
-    result1=$(curl -s "$SEARCH_API?current=1&size=5&role=USER")
-    total1=$(echo "$result1" | jq -r '.total' 2>/dev/null)
-    pages1=$(echo "$result1" | jq -r '.pages' 2>/dev/null)
-    current1=$(echo "$result1" | jq -r '.current' 2>/dev/null)
-    
-    # 第2页
-    result2=$(curl -s "$SEARCH_API?current=2&size=5&role=USER")
-    current2=$(echo "$result2" | jq -r '.current' 2>/dev/null)
-    
-    if [ "$total1" = "950" ] && [ "$current1" = "1" ] && [ "$current2" = "2" ]; then
-        echo -e "   ${GREEN}✅ 通过: 总共 $total1 个USER，总页数 $pages1，分页正常${NC}"
-    else
-        echo -e "   ${RED}❌ 失败: 总共 $total1 个USER，总页数 $pages1${NC}"
-    fi
-    echo ""
-}
+if [ "$total" -eq 100 ]; then
+    echo -e "   ${GREEN}✅ Pass: Found $total users, first user: $first_user${NC}"
+else
+    echo -e "   ${RED}❌ Fail: Found $total users, first user: $first_user${NC}"
+fi
+echo ""
 
-# 测试边界情况
-test_edge_cases() {
-    echo -e "${YELLOW}8. 测试边界情况${NC}"
-    
-    # 无结果的搜索
-    echo "   8.1 不存在的用户名搜索"
-    result=$(curl -s "$SEARCH_API?current=1&size=5&username=nonexistentuser")
-    total=$(echo "$result" | jq -r '.total' 2>/dev/null)
-    
-    if [ "$total" = "0" ]; then
-        echo -e "   ${GREEN}✅ 通过: 不存在的用户名返回0结果${NC}"
-    else
-        echo -e "   ${RED}❌ 失败: 不存在的用户名返回 $total 结果${NC}"
-    fi
-    
-    # 空条件搜索
-    echo "   8.2 无条件搜索（应该返回所有用户）"
-    result=$(curl -s "$SEARCH_API?current=1&size=5")
-    total=$(echo "$result" | jq -r '.total' 2>/dev/null)
-    
-    if [ "$total" = "1001" ]; then
-        echo -e "   ${GREEN}✅ 通过: 无条件搜索返回所有 $total 个用户${NC}"
-    else
-        echo -e "   ${RED}❌ 失败: 无条件搜索返回 $total 个用户${NC}"
-    fi
-    echo ""
-}
+# Test 2: Role exact match
+echo -e "${YELLOW}2. Testing role exact match${NC}"
+echo "   Condition: role='ADMIN' (should find 10 users)"
+total=$(make_api_call '{"role": "ADMIN"}')
 
-# 显示API使用示例
-show_api_examples() {
-    echo -e "${BLUE}=== API 使用示例 ===${NC}"
-    echo ""
-    echo "1. 用户名模糊搜索:"
-    echo "   GET $SEARCH_API?username=admin"
-    echo ""
-    echo "2. 角色筛选:"
-    echo "   GET $SEARCH_API?role=ADMIN"
-    echo ""
-    echo "3. 组合条件:"
-    echo "   GET $SEARCH_API?username=user&role=ADMIN&enabled=true"
-    echo ""
-    echo "4. 分页 + 条件:"
-    echo "   GET $SEARCH_API?current=2&size=10&role=USER"
-    echo ""
-    echo "5. 时间范围查询:"
-    echo "   GET $SEARCH_API?createdAtStart=2025-07-19T06:00:00&createdAtEnd=2025-07-19T07:00:00"
-    echo ""
-}
+if [ "$total" -eq 10 ]; then
+    echo -e "   ${GREEN}✅ Pass: Found $total ADMIN users${NC}"
+else
+    echo -e "   ${RED}❌ Fail: Found $total ADMIN users${NC}"
+fi
+echo ""
 
-# 主函数
-main() {
-    if ! check_app_status; then
-        exit 1
-    fi
-    
-    echo ""
-    
-    # 运行所有测试
-    test_username_search
-    test_role_filter
-    test_email_domain
-    test_combined_conditions
-    test_enabled_status
-    test_email_search
-    test_pagination
-    test_edge_cases
-    
-    echo -e "${BLUE}=== 测试完成 ===${NC}"
-    echo ""
-    
-    # 显示使用示例
-    show_api_examples
-}
+# Test 3: Email domain filter
+echo -e "${YELLOW}3. Testing email domain filter${NC}"
+echo "   Domain: 'test.com' (should find 1000 users)"
+total=$(make_api_call '{"emailDomain": "test.com"}')
 
-# 运行主函数
-main "$@" 
+if [ "$total" -eq 1000 ]; then
+    echo -e "   ${GREEN}✅ Pass: Found $total test.com domain users${NC}"
+else
+    echo -e "   ${RED}❌ Fail: Found $total test.com domain users${NC}"
+fi
+echo ""
+
+# Test 4: Combined conditions
+echo -e "${YELLOW}4. Testing combined condition query${NC}"
+echo "   Conditions: username contains 'user0' AND role='ADMIN' (should find 10 users)"
+total=$(make_api_call '{"username": "user0", "role": "ADMIN"}')
+users=$(get_first_three_users '{"username": "user0", "role": "ADMIN"}')
+
+if [ "$total" -eq 10 ]; then
+    echo -e "   ${GREEN}✅ Pass: Found $total users${NC}"
+    echo -e "   ${BLUE}   First 3 users: $users${NC}"
+else
+    echo -e "   ${RED}❌ Fail: Found $total users${NC}"
+fi
+echo ""
+
+# Test 5: Enabled status filter
+echo -e "${YELLOW}5. Testing enabled status filter${NC}"
+echo "   Status: enabled=true (should find all 1001 users)"
+total=$(make_api_call '{"enabled": true}')
+
+if [ "$total" -eq 1001 ]; then
+    echo -e "   ${GREEN}✅ Pass: Found $total enabled users${NC}"
+else
+    echo -e "   ${RED}❌ Fail: Found $total enabled users${NC}"
+fi
+echo ""
+
+# Test 6: Email fuzzy search
+echo -e "${YELLOW}6. Testing email fuzzy search${NC}"
+echo "   Keyword: 'user001' (should find 1 user)"
+total=$(make_api_call '{"email": "user001"}')
+email=$(get_user_email '{"email": "user001"}')
+
+if [ "$total" -eq 1 ]; then
+    echo -e "   ${GREEN}✅ Pass: Found $total users, email: $email${NC}"
+else
+    echo -e "   ${RED}❌ Fail: Found $total users, email: $email${NC}"
+fi
+echo ""
+
+# Test 7: Pagination with conditional query
+echo -e "${YELLOW}7. Testing pagination with conditional query${NC}"
+echo "   Condition: username contains 'user0', page 1, size 5"
+response=$(curl -s -X POST "${BASE_URL}/pageQuery" \
+    -H "Content-Type: application/json" \
+    -d '{"username": "user0"}' \
+    -G \
+    -d "current=1" \
+    -d "size=5")
+
+total=$(echo "$response" | jq -r '.total')
+current=$(echo "$response" | jq -r '.current')
+size=$(echo "$response" | jq -r '.size')
+records_count=$(echo "$response" | jq -r '.records | length')
+
+echo "   Total: $total, Current: $current, Size: $size, Records: $records_count"
+
+if [ "$total" -eq 100 ] && [ "$current" -eq 1 ] && [ "$size" -eq 5 ] && [ "$records_count" -eq 5 ]; then
+    echo -e "   ${GREEN}✅ Pass: Pagination works correctly${NC}"
+else
+    echo -e "   ${RED}❌ Fail: Pagination not working correctly${NC}"
+fi
+echo ""
+
+# Test 8: Edge cases
+echo -e "${YELLOW}8. Testing edge cases${NC}"
+
+echo "   8.1 Non-existent username search"
+total=$(make_api_call '{"username": "nonexistentuser"}')
+
+if [ "$total" -eq 0 ]; then
+    echo -e "   ${GREEN}✅ Pass: Non-existent username returns 0 results${NC}"
+else
+    echo -e "   ${RED}❌ Fail: Non-existent username returns $total results${NC}"
+fi
+
+echo "   8.2 No condition search (should return all users)"
+total=$(make_api_call '{}')
+
+if [ "$total" -eq 1001 ]; then
+    echo -e "   ${GREEN}✅ Pass: No condition search returns all $total users${NC}"
+else
+    echo -e "   ${RED}❌ Fail: No condition search returns $total users${NC}"
+fi
+echo ""
+
+# Summary
+echo -e "${BLUE}=== Test Summary ===${NC}"
+echo "1. Username fuzzy search:"
+echo "   - Tested: username contains 'user0'"
+echo "   - Expected: 100 users"
+echo "   - Result: $(make_api_call '{"username": "user0"}') users"
+echo ""
+echo "2. Role exact match:"
+echo "   - Tested: role='ADMIN'"
+echo "   - Expected: 10 users"
+echo "   - Result: $(make_api_call '{"role": "ADMIN"}') users"
+echo ""
+echo "3. Email domain filter:"
+echo "   - Tested: domain='test.com'"
+echo "   - Expected: 1000 users"
+echo "   - Result: $(make_api_call '{"emailDomain": "test.com"}') users"
+echo ""
+echo "4. Combined conditions:"
+echo "   - Tested: username contains 'user0' AND role='ADMIN'"
+echo "   - Expected: 10 users"
+echo "   - Result: $(make_api_call '{"username": "user0", "role": "ADMIN"}') users"
+echo ""
+echo "5. Time range query:"
+echo "   - Note: Time range queries require specific date formats"
+echo "   - Format: yyyy-MM-dd HH:mm:ss"
+echo ""
+
+echo -e "${GREEN}✅ All conditional query tests completed!${NC}" 

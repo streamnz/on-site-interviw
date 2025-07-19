@@ -66,7 +66,6 @@ public class UserController {
         }
     }
 
-
     @PutMapping("/update")
     @Operation(summary = "Update user with validation", 
                description = "Updates an existing user with comprehensive validation using UserUpdateDTO")

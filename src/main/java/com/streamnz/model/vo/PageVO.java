@@ -11,36 +11,36 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 /**
- * 通用分页视图对象
- * @param <T> 数据类型
+ * Generic pagination view object
+ * @param <T> Data type
  */
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-@Schema(description = "分页响应对象")
+@Schema(description = "Pagination response object")
 public class PageVO<T> {
 
-    @Schema(description = "数据列表")
+    @Schema(description = "Data list")
     private List<T> records;
 
-    @Schema(description = "总记录数")
+    @Schema(description = "Total record count")
     private Long total;
 
-    @Schema(description = "每页大小")
+    @Schema(description = "Page size")
     private Long size;
 
-    @Schema(description = "当前页码")
+    @Schema(description = "Current page number")
     private Long current;
 
-    @Schema(description = "总页数")
+    @Schema(description = "Total page count")
     private Long pages;
 
     /**
-     * 从MyBatis-Plus的Page对象构造PageVO
-     * @param page MyBatis-Plus的Page对象
-     * @param converter 数据转换函数
-     * @param <R> 原始数据类型
-     * @param <T> 目标数据类型
+     * Construct PageVO from MyBatis-Plus Page object
+     * @param page MyBatis-Plus Page object
+     * @param converter Data conversion function
+     * @param <R> Original data type
+     * @param <T> Target data type
      */
     public <R> PageVO(Page<R> page, Function<R, T> converter) {
         this.records = page.getRecords().stream()
@@ -53,8 +53,8 @@ public class PageVO<T> {
     }
 
     /**
-     * 从MyBatis-Plus的Page对象构造PageVO（无转换）
-     * @param page MyBatis-Plus的Page对象
+     * Construct PageVO from MyBatis-Plus Page object (no conversion)
+     * @param page MyBatis-Plus Page object
      */
     public PageVO(Page<T> page) {
         this.records = page.getRecords();

@@ -5,59 +5,59 @@ import lombok.Data;
 import jakarta.validation.constraints.*;
 
 /**
- * 用户更新DTO
- * 用于封装更新用户时的请求参数
+ * User update DTO
+ * Used to encapsulate user update request parameters
  */
 @Data
-@Schema(description = "用户更新请求参数")
+@Schema(description = "User update request parameters")
 public class UserUpdateDTO {
 
-    @Schema(description = "用户ID", example = "1", required = true)
-    @NotNull(message = "用户ID不能为空")
-    @Min(value = 1, message = "用户ID必须大于0")
+    @Schema(description = "User ID", example = "1", required = true)
+    @NotNull(message = "User ID cannot be empty")
+    @Min(value = 1, message = "User ID must be greater than 0")
     private Long id;
 
-    @Schema(description = "用户名", example = "john_doe")
-    @Size(min = 3, max = 50, message = "用户名长度必须在3-50个字符之间")
-    @Pattern(regexp = "^[a-zA-Z0-9_]+$", message = "用户名只能包含字母、数字和下划线")
+    @Schema(description = "Username", example = "john_doe")
+    @Size(min = 3, max = 50, message = "Username length must be between 3-50 characters")
+    @Pattern(regexp = "^[a-zA-Z0-9_]+$", message = "Username can only contain letters, numbers and underscores")
     private String username;
 
-    @Schema(description = "密码", example = "newPassword123")
-    @Size(min = 6, max = 100, message = "密码长度必须在6-100个字符之间")
+    @Schema(description = "Password", example = "newPassword123")
+    @Size(min = 6, max = 100, message = "Password length must be between 6-100 characters")
     @Pattern(regexp = "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)[a-zA-Z\\d@$!%*?&]{6,}$", 
-             message = "密码必须包含至少一个小写字母、一个大写字母和一个数字")
+             message = "Password must contain at least one lowercase letter, one uppercase letter and one number")
     private String password;
 
-    @Schema(description = "确认密码", example = "newPassword123")
+    @Schema(description = "Confirm password", example = "newPassword123")
     private String confirmPassword;
 
-    @Schema(description = "邮箱", example = "john.doe@example.com")
-    @Email(message = "邮箱格式不正确")
-    @Size(max = 100, message = "邮箱长度不能超过100个字符")
+    @Schema(description = "Email", example = "john.doe@example.com")
+    @Email(message = "Invalid email format")
+    @Size(max = 100, message = "Email length cannot exceed 100 characters")
     private String email;
 
-    @Schema(description = "全名", example = "John Doe")
-    @Size(min = 2, max = 100, message = "全名长度必须在2-100个字符之间")
-    @Pattern(regexp = "^[\\u4e00-\\u9fa5a-zA-Z\\s]+$", message = "全名只能包含中文、英文和空格")
+    @Schema(description = "Full name", example = "John Doe")
+    @Size(min = 2, max = 100, message = "Full name length must be between 2-100 characters")
+    @Pattern(regexp = "^[a-zA-Z\\s]+$", message = "Full name can only contain letters and spaces")
     private String fullName;
 
-    @Schema(description = "用户角色", example = "USER")
-    @Pattern(regexp = "^(ADMIN|MANAGER|USER)$", message = "角色只能是ADMIN、MANAGER或USER")
+    @Schema(description = "User role", example = "USER")
+    @Pattern(regexp = "^(ADMIN|MANAGER|USER)$", message = "Role can only be ADMIN, MANAGER or USER")
     private String role;
 
-    @Schema(description = "启用状态", example = "true")
+    @Schema(description = "Enabled status", example = "true")
     private Boolean enabled;
 
     /**
-     * 自定义校验：密码确认（仅在密码不为空时校验）
+     * Custom validation: password confirmation (only when password is not empty)
      */
-    @AssertTrue(message = "密码和确认密码不匹配")
+    @AssertTrue(message = "Password and confirm password do not match")
     public boolean isPasswordConfirmed() {
-        // 如果密码为空，则不需要确认密码
+        // If password is empty, no confirmation needed
         if (password == null || password.trim().isEmpty()) {
             return true;
         }
-        // 如果密码不为空，则确认密码也不能为空
+        // If password is not empty, confirm password cannot be empty
         if (confirmPassword == null || confirmPassword.trim().isEmpty()) {
             return false;
         }
@@ -65,9 +65,9 @@ public class UserUpdateDTO {
     }
 
     /**
-     * 自定义校验：用户名不能包含敏感词
+     * Custom validation: username cannot contain sensitive words
      */
-    @AssertTrue(message = "用户名包含敏感词，请更换")
+    @AssertTrue(message = "Username contains sensitive words, please change")
     public boolean isUsernameNotSensitive() {
         if (username == null || username.trim().isEmpty()) {
             return true;
@@ -83,9 +83,9 @@ public class UserUpdateDTO {
     }
 
     /**
-     * 自定义校验：邮箱域名检查
+     * Custom validation: email domain check
      */
-    @AssertTrue(message = "邮箱域名不被支持")
+    @AssertTrue(message = "Email domain is not supported")
     public boolean isEmailDomainValid() {
         if (email == null || email.trim().isEmpty()) {
             return true;
@@ -104,9 +104,9 @@ public class UserUpdateDTO {
     }
 
     /**
-     * 自定义校验：至少有一个字段被更新（除了ID）
+     * Custom validation: at least one field must be updated (except ID)
      */
-    @AssertTrue(message = "至少需要提供一个要更新的字段")
+    @AssertTrue(message = "At least one field must be provided for update")
     public boolean hasAtLeastOneField() {
         return (username != null && !username.trim().isEmpty()) ||
                (password != null && !password.trim().isEmpty()) ||
@@ -117,9 +117,9 @@ public class UserUpdateDTO {
     }
 
     /**
-     * 自定义校验：不能同时更新用户名和邮箱为空
+     * Custom validation: username and email cannot be empty at the same time
      */
-    @AssertTrue(message = "用户名和邮箱不能同时为空")
+    @AssertTrue(message = "Username and email cannot be empty at the same time")
     public boolean isUsernameOrEmailProvided() {
         boolean hasUsername = username != null && !username.trim().isEmpty();
         boolean hasEmail = email != null && !email.trim().isEmpty();
@@ -127,7 +127,7 @@ public class UserUpdateDTO {
     }
 
     /**
-     * 检查是否有任何字段被设置（除了ID）
+     * Check if any field is set (except ID)
      */
     public boolean hasAnyField() {
         return (username != null && !username.trim().isEmpty()) ||
@@ -139,7 +139,7 @@ public class UserUpdateDTO {
     }
 
     /**
-     * 获取非空字段数量（不包括ID）
+     * Get count of non-empty fields (excluding ID)
      */
     public int getNonEmptyFieldCount() {
         int count = 0;

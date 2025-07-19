@@ -10,41 +10,40 @@ import java.time.LocalDateTime;
 
 /**
  * User View Object for API responses
- * 用于API响应的用户视图对象
  */
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-@Schema(description = "用户信息响应对象")
+@Schema(description = "User information response object")
 public class UserVO {
 
-    @Schema(description = "用户ID")
+    @Schema(description = "User ID")
     private Long id;
 
-    @Schema(description = "用户名")
+    @Schema(description = "Username")
     private String username;
 
-    @Schema(description = "邮箱地址")
+    @Schema(description = "Email address")
     private String email;
 
-    @Schema(description = "用户全名")
+    @Schema(description = "Full name")
     private String fullName;
 
-    @Schema(description = "用户角色", example = "ADMIN")
+    @Schema(description = "User role", example = "ADMIN")
     private String role;
 
-    @Schema(description = "是否启用", example = "true")
+    @Schema(description = "Enabled status", example = "true")
     private Boolean enabled;
 
-    @Schema(description = "创建时间")
+    @Schema(description = "Created time")
     private LocalDateTime createdAt;
 
-    @Schema(description = "更新时间")
+    @Schema(description = "Updated time")
     private LocalDateTime updatedAt;
 
     /**
-     * 从User实体构造UserVO
-     * @param user User实体对象
+     * Construct UserVO from User entity
+     * @param user User entity object
      */
     public UserVO(User user) {
         if (user != null) {

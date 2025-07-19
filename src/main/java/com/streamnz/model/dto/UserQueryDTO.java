@@ -10,91 +10,90 @@ import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 
 /**
- * 用户条件查询DTO
- * 用于封装所有可能的查询条件
+ * User query DTO
+ * Used to encapsulate all possible query conditions
  */
 @Data
-@Schema(description = "用户条件查询参数")
+@Schema(description = "User query parameters")
 public class UserQueryDTO {
 
-    @Schema(description = "用户名模糊搜索关键字")
-    @Size(max = 50, message = "用户名长度不能超过50个字符")
+    @Schema(description = "Username search keyword")
+    @Size(max = 50, message = "Username length cannot exceed 50 characters")
     private String username;
 
-    @Schema(description = "邮箱模糊搜索关键字")
-    @Email(message = "邮箱格式不正确")
-    @Size(max = 100, message = "邮箱长度不能超过100个字符")
+    @Schema(description = "Email search keyword")
+    @Size(max = 100, message = "Email length cannot exceed 100 characters")
     private String email;
 
-    @Schema(description = "全名模糊搜索关键字")
-    @Size(max = 100, message = "全名长度不能超过100个字符")
+    @Schema(description = "Full name search keyword")
+    @Size(max = 100, message = "Full name length cannot exceed 100 characters")
     private String fullName;
 
-    @Schema(description = "用户角色", example = "ADMIN")
-    @Pattern(regexp = "^(ADMIN|MANAGER|USER)$", message = "角色只能是ADMIN、MANAGER或USER")
+    @Schema(description = "User role", example = "ADMIN")
+    @Pattern(regexp = "^(ADMIN|MANAGER|USER)$", message = "Role can only be ADMIN, MANAGER or USER")
     private String role;
 
-    @Schema(description = "启用状态", example = "true")
+    @Schema(description = "Enabled status", example = "true")
     private Boolean enabled;
 
-    @Schema(description = "创建时间开始", example = "2025-01-01 10:30:00")
+    @Schema(description = "Created time start", example = "2025-01-01 10:30:00")
     @Pattern(regexp = "^\\d{4}-\\d{2}-\\d{2} \\d{2}:\\d{2}:\\d{2}$", 
-             message = "创建时间开始格式不正确，应为：yyyy-MM-dd HH:mm:ss")
+             message = "Invalid created time start format, should be: yyyy-MM-dd HH:mm:ss")
     private String createdAtStart;
 
-    @Schema(description = "创建时间结束", example = "2025-12-31 23:59:59")
+    @Schema(description = "Created time end", example = "2025-12-31 23:59:59")
     @Pattern(regexp = "^\\d{4}-\\d{2}-\\d{2} \\d{2}:\\d{2}:\\d{2}$", 
-             message = "创建时间结束格式不正确，应为：yyyy-MM-dd HH:mm:ss")
+             message = "Invalid created time end format, should be: yyyy-MM-dd HH:mm:ss")
     private String createdAtEnd;
 
-    @Schema(description = "更新时间开始", example = "2025-01-01 10:30:00")
+    @Schema(description = "Updated time start", example = "2025-01-01 10:30:00")
     @Pattern(regexp = "^\\d{4}-\\d{2}-\\d{2} \\d{2}:\\d{2}:\\d{2}$", 
-             message = "更新时间开始格式不正确，应为：yyyy-MM-dd HH:mm:ss")
+             message = "Invalid updated time start format, should be: yyyy-MM-dd HH:mm:ss")
     private String updatedAtStart;
 
-    @Schema(description = "更新时间结束", example = "2025-12-31 23:59:59")
+    @Schema(description = "Updated time end", example = "2025-12-31 23:59:59")
     @Pattern(regexp = "^\\d{4}-\\d{2}-\\d{2} \\d{2}:\\d{2}:\\d{2}$", 
-             message = "更新时间结束格式不正确，应为：yyyy-MM-dd HH:mm:ss")
+             message = "Invalid updated time end format, should be: yyyy-MM-dd HH:mm:ss")
     private String updatedAtEnd;
 
-    @Schema(description = "邮箱域名", example = "test.com")
-    @Pattern(regexp = "^[a-zA-Z0-9.-]+$", message = "邮箱域名格式不正确")
-    @Size(max = 50, message = "邮箱域名长度不能超过50个字符")
+    @Schema(description = "Email domain", example = "test.com")
+    @Pattern(regexp = "^[a-zA-Z0-9.-]+$", message = "Invalid email domain format")
+    @Size(max = 50, message = "Email domain length cannot exceed 50 characters")
     private String emailDomain;
 
-    // 时间格式常量
+    // Time format constant
     private static final DateTimeFormatter DATE_TIME_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 
     /**
-     * 获取创建时间开始（LocalDateTime类型）
+     * Get created time start (LocalDateTime type)
      */
     public LocalDateTime getCreatedAtStartAsDateTime() {
         return parseDateTime(createdAtStart);
     }
 
     /**
-     * 获取创建时间结束（LocalDateTime类型）
+     * Get created time end (LocalDateTime type)
      */
     public LocalDateTime getCreatedAtEndAsDateTime() {
         return parseDateTime(createdAtEnd);
     }
 
     /**
-     * 获取更新时间开始（LocalDateTime类型）
+     * Get updated time start (LocalDateTime type)
      */
     public LocalDateTime getUpdatedAtStartAsDateTime() {
         return parseDateTime(updatedAtStart);
     }
 
     /**
-     * 获取更新时间结束（LocalDateTime类型）
+     * Get updated time end (LocalDateTime type)
      */
     public LocalDateTime getUpdatedAtEndAsDateTime() {
         return parseDateTime(updatedAtEnd);
     }
 
     /**
-     * 解析时间字符串为LocalDateTime
+     * Parse time string to LocalDateTime
      */
     private LocalDateTime parseDateTime(String dateTimeStr) {
         if (dateTimeStr == null || dateTimeStr.trim().isEmpty()) {
@@ -103,14 +102,14 @@ public class UserQueryDTO {
         try {
             return LocalDateTime.parse(dateTimeStr.trim(), DATE_TIME_FORMATTER);
         } catch (DateTimeParseException e) {
-            throw new IllegalArgumentException("时间格式不正确: " + dateTimeStr + "，应为：yyyy-MM-dd HH:mm:ss");
+            throw new IllegalArgumentException("Invalid time format: " + dateTimeStr + ", should be: yyyy-MM-dd HH:mm:ss");
         }
     }
 
     /**
-     * 自定义校验：时间范围逻辑
+     * Custom validation: created time range logic
      */
-    @AssertTrue(message = "创建时间开始不能晚于创建时间结束")
+    @AssertTrue(message = "Created time start cannot be later than created time end")
     public boolean isCreatedAtRangeValid() {
         LocalDateTime start = getCreatedAtStartAsDateTime();
         LocalDateTime end = getCreatedAtEndAsDateTime();
@@ -121,7 +120,7 @@ public class UserQueryDTO {
         return true;
     }
 
-    @AssertTrue(message = "更新时间开始不能晚于更新时间结束")
+    @AssertTrue(message = "Updated time start cannot be later than updated time end")
     public boolean isUpdatedAtRangeValid() {
         LocalDateTime start = getUpdatedAtStartAsDateTime();
         LocalDateTime end = getUpdatedAtEndAsDateTime();
@@ -133,48 +132,26 @@ public class UserQueryDTO {
     }
 
     /**
-     * 自定义校验：时间不能是未来时间（允许当前年份）
+     * Custom validation: time cannot be in the future (allow current year)
      */
-    @AssertTrue(message = "创建时间开始不能是未来时间")
+    @AssertTrue(message = "Created time start cannot be in the future")
     public boolean isCreatedAtStartNotFuture() {
         LocalDateTime start = getCreatedAtStartAsDateTime();
         if (start != null) {
-            // 允许当前年份的时间
+            // Allow current year time
             LocalDateTime now = LocalDateTime.now();
             return !start.isAfter(now.plusYears(1));
         }
         return true;
     }
 
-    @AssertTrue(message = "创建时间结束不能是未来时间")
-    public boolean isCreatedAtEndNotFuture() {
-        LocalDateTime end = getCreatedAtEndAsDateTime();
-        if (end != null) {
-            // 允许当前年份的时间
-            LocalDateTime now = LocalDateTime.now();
-            return !end.isAfter(now.plusYears(1));
-        }
-        return true;
-    }
-
-    @AssertTrue(message = "更新时间开始不能是未来时间")
+    @AssertTrue(message = "Updated time start cannot be in the future")
     public boolean isUpdatedAtStartNotFuture() {
         LocalDateTime start = getUpdatedAtStartAsDateTime();
         if (start != null) {
-            // 允许当前年份的时间
+            // Allow current year time
             LocalDateTime now = LocalDateTime.now();
             return !start.isAfter(now.plusYears(1));
-        }
-        return true;
-    }
-
-    @AssertTrue(message = "更新时间结束不能是未来时间")
-    public boolean isUpdatedAtEndNotFuture() {
-        LocalDateTime end = getUpdatedAtEndAsDateTime();
-        if (end != null) {
-            // 允许当前年份的时间
-            LocalDateTime now = LocalDateTime.now();
-            return !end.isAfter(now.plusYears(1));
         }
         return true;
     }

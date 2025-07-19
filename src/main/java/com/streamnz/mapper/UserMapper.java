@@ -5,7 +5,8 @@ import com.streamnz.model.po.User;
 import org.apache.ibatis.annotations.Mapper;
 
 /**
- * UserMapper interface for MyBatis-Plus operations on users table
+ * User mapper interface
+ * Extends MyBatis-Plus BaseMapper for basic CRUD operations
  */
 @Mapper
 public interface UserMapper extends BaseMapper<User> {

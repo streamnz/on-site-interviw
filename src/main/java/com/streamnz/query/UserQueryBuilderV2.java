@@ -7,8 +7,8 @@ import org.springframework.util.StringUtils;
 
 
 /**
- * 用户查询构建器 - Builder模式版本
- * 提供更灵活的查询条件构建方式
+ * User query builder - Builder pattern version
+ * Provides more flexible query condition building
  */
 public class UserQueryBuilderV2 {
 
@@ -21,7 +21,7 @@ public class UserQueryBuilderV2 {
     }
 
     /**
-     * 添加用户名模糊搜索条件
+     * Add username fuzzy search condition
      */
     public UserQueryBuilderV2 withUsername() {
         if (StringUtils.hasText(queryDTO.getUsername())) {
@@ -31,7 +31,7 @@ public class UserQueryBuilderV2 {
     }
 
     /**
-     * 添加邮箱模糊搜索条件
+     * Add email fuzzy search condition
      */
     public UserQueryBuilderV2 withEmail() {
         if (StringUtils.hasText(queryDTO.getEmail())) {
@@ -41,7 +41,7 @@ public class UserQueryBuilderV2 {
     }
 
     /**
-     * 添加全名模糊搜索条件
+     * Add full name fuzzy search condition
      */
     public UserQueryBuilderV2 withFullName() {
         if (StringUtils.hasText(queryDTO.getFullName())) {
@@ -51,7 +51,7 @@ public class UserQueryBuilderV2 {
     }
 
     /**
-     * 添加角色精确匹配条件
+     * Add role exact match condition
      */
     public UserQueryBuilderV2 withRole() {
         if (StringUtils.hasText(queryDTO.getRole())) {
@@ -61,7 +61,7 @@ public class UserQueryBuilderV2 {
     }
 
     /**
-     * 添加启用状态精确匹配条件
+     * Add enabled status exact match condition
      */
     public UserQueryBuilderV2 withEnabled() {
         if (queryDTO.getEnabled() != null) {
@@ -71,7 +71,7 @@ public class UserQueryBuilderV2 {
     }
 
     /**
-     * 添加创建时间范围查询条件
+     * Add created time range query condition
      */
     public UserQueryBuilderV2 withCreatedAtRange() {
         if (queryDTO.getCreatedAtStartAsDateTime() != null) {
@@ -84,7 +84,7 @@ public class UserQueryBuilderV2 {
     }
 
     /**
-     * 添加更新时间范围查询条件
+     * Add updated time range query condition
      */
     public UserQueryBuilderV2 withUpdatedAtRange() {
         if (queryDTO.getUpdatedAtStartAsDateTime() != null) {
@@ -97,7 +97,7 @@ public class UserQueryBuilderV2 {
     }
 
     /**
-     * 添加邮箱域名筛选条件
+     * Add email domain filter condition
      */
     public UserQueryBuilderV2 withEmailDomain() {
         if (StringUtils.hasText(queryDTO.getEmailDomain())) {
@@ -107,7 +107,7 @@ public class UserQueryBuilderV2 {
     }
 
     /**
-     * 添加默认排序
+     * Add default sorting
      */
     public UserQueryBuilderV2 withDefaultOrder() {
         queryWrapper.orderByDesc("created_at");
@@ -115,7 +115,7 @@ public class UserQueryBuilderV2 {
     }
 
     /**
-     * 构建完整的查询条件
+     * Build complete query conditions
      */
     public UserQueryBuilderV2 buildAll() {
         return this
@@ -131,14 +131,14 @@ public class UserQueryBuilderV2 {
     }
 
     /**
-     * 获取QueryWrapper
+     * Get QueryWrapper
      */
     public QueryWrapper<User> build() {
         return queryWrapper;
     }
 
     /**
-     * 静态工厂方法
+     * Static factory method
      */
     public static UserQueryBuilderV2 from(UserQueryDTO queryDTO) {
         return new UserQueryBuilderV2(queryDTO);
