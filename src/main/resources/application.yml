@@ -1,0 +1,27 @@
+# Application Configuration
+spring:
+  application:
+    name: on-site-interview
+  datasource:
+    url: jdbc:sqlite:sql-lite/identifier.sqlite
+    driver-class-name: org.sqlite.JDBC
+  security:
+    user:
+      name: admin
+      password: admin
+  sql:
+    init:
+      mode: always
+      schema-locations: classpath:db/schema.sql
+
+server:
+  port: 8080
+
+
+# Swagger Documentation Configuration
+springdoc:
+  api-docs:
+    path: /api-docs
+  swagger-ui:
+    path: /swagger-ui.html
+    operationsSorter: method
