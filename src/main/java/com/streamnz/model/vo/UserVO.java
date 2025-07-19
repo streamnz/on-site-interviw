@@ -1,5 +1,6 @@
 package com.streamnz.model.vo;
 
+import com.streamnz.annotation.DateFormat;
 import com.streamnz.model.entity.User;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
@@ -36,9 +37,11 @@ public class UserVO {
     private Boolean enabled;
 
     @Schema(description = "Created time")
+    @DateFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime createdAt;
 
     @Schema(description = "Updated time")
+    @DateFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime updatedAt;
 
     /**
