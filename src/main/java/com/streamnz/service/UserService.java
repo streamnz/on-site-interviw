@@ -3,6 +3,8 @@ package com.streamnz.service;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.streamnz.model.po.User;
 import com.streamnz.model.dto.UserQueryDTO;
+import com.streamnz.model.dto.UserCreateDTO;
+import com.streamnz.model.dto.UserUpdateDTO;
 
 import java.util.List;
 
@@ -35,14 +37,28 @@ public interface UserService {
     User findByUsername(String username);
 
     /**
-     * Create a new user
+     * Create a new user using UserCreateDTO
+     * @param createDTO User creation DTO
+     * @return Created user with ID populated
+     */
+    User createUser(UserCreateDTO createDTO);
+
+    /**
+     * Create a new user using User entity (legacy method)
      * @param user User object to create
      * @return Created user with ID populated
      */
     User createUser(User user);
 
     /**
-     * Update an existing user
+     * Update an existing user using UserUpdateDTO
+     * @param updateDTO User update DTO containing ID and fields to update
+     * @return Updated user
+     */
+    User updateUser(UserUpdateDTO updateDTO);
+
+    /**
+     * Update an existing user using User entity (legacy method)
      * @param id User ID to update
      * @param user User object with updated fields
      * @return Updated user

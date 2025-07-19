@@ -3,6 +3,8 @@ package com.streamnz.controller;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.streamnz.model.po.User;
 import com.streamnz.model.dto.UserQueryDTO;
+import com.streamnz.model.dto.UserCreateDTO;
+import com.streamnz.model.dto.UserUpdateDTO;
 import com.streamnz.model.vo.UserVO;
 import com.streamnz.model.vo.PageVO;
 import com.streamnz.service.UserService;
@@ -42,8 +44,8 @@ public class UserController {
         return ResponseEntity.ok(pageVO);
     }
 
-    @GetMapping("/queryById")
-    @Operation(summary = "Get user by ID", description = "Returns a user by their ID")
+    @GetMapping("/{id}")
+    @Operation(summary = "Query user by ID", description = "Returns a user by their ID")
     public ResponseEntity<UserVO> getUserById(@PathVariable Long id) {
         User user = userService.findById(id);
         if (user == null) {
@@ -52,31 +54,32 @@ public class UserController {
         return ResponseEntity.ok(new UserVO(user));
     }
 
-    @GetMapping("/username/{username}")
-    @Operation(summary = "Get user by username", description = "Returns a user by their username")
-    public ResponseEntity<UserVO> getUserByUsername(@PathVariable String username) {
-        User user = userService.findByUsername(username);
-        if (user == null) {
-            return ResponseEntity.notFound().build();
+    @PostMapping("/create")
+    @Operation(summary = "Create user with validation", 
+               description = "Creates a new user with comprehensive validation using UserCreateDTO")
+    public ResponseEntity<UserVO> createUser(@Valid @RequestBody UserCreateDTO createDTO) {
+        try {
+            User createdUser = userService.createUser(createDTO);
+            return ResponseEntity.status(HttpStatus.CREATED).body(new UserVO(createdUser));
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().build();
         }
-        return ResponseEntity.ok(new UserVO(user));
     }
 
-    @PostMapping
-    @Operation(summary = "Create user", description = "Creates a new user")
-    public ResponseEntity<UserVO> createUser(@RequestBody User user) {
-        User createdUser = userService.createUser(user);
-        return ResponseEntity.status(HttpStatus.CREATED).body(new UserVO(createdUser));
-    }
 
-    @PutMapping("/{id}")
-    @Operation(summary = "Update user", description = "Updates an existing user")
-    public ResponseEntity<UserVO> updateUser(@PathVariable Long id, @RequestBody User user) {
-        User updatedUser = userService.updateUser(id, user);
-        if (updatedUser == null) {
-            return ResponseEntity.notFound().build();
+    @PutMapping("/update")
+    @Operation(summary = "Update user with validation", 
+               description = "Updates an existing user with comprehensive validation using UserUpdateDTO")
+    public ResponseEntity<UserVO> updateUser(@Valid @RequestBody UserUpdateDTO updateDTO) {
+        try {
+            User updatedUser = userService.updateUser(updateDTO);
+            if (updatedUser == null) {
+                return ResponseEntity.notFound().build();
+            }
+            return ResponseEntity.ok(new UserVO(updatedUser));
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().build();
         }
-        return ResponseEntity.ok(new UserVO(updatedUser));
     }
 
     @DeleteMapping("/{id}")
