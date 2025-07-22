@@ -7,26 +7,27 @@ spring:
 
   # Database configuration
   datasource:
-    driver-class-name: org.sqlite.JDBC
     url: jdbc:sqlite:sql-lite/identifier.sqlite
+    driver-class-name: org.sqlite.JDBC
     username:
     password:
 
-  # MyBatis-Plus configuration
-  mybatis-plus:
-    configuration:
-      map-underscore-to-camel-case: true
-      log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
-    global-config:
-      db-config:
-        id-type: auto
-        logic-delete-field: deleted
-        logic-delete-value: 1
-        logic-not-delete-value: 0
+# MyBatis-Plus configuration
+mybatis-plus:
+  configuration:
+    map-underscore-to-camel-case: true
+    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+  global-config:
+    db-config:
+      id-type: input
+      logic-delete-field: deleted
+      logic-delete-value: 1
+      logic-not-delete-value: 0
 
 # Logging configuration
 logging:
   level:
+    root: INFO
     com.streamnz: DEBUG
     org.springframework.security: DEBUG
   pattern:

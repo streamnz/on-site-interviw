@@ -2,18 +2,14 @@ package com.streamnz.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.security.config.annotation.web.builders.HttpSecurity;
-import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.security.web.SecurityFilterChain;
 
 /**
  * Security configuration
- * Configures Spring Security for the application
+ * 临时禁用Spring Security，只保留PasswordEncoder
  */
 @Configuration
-@EnableWebSecurity
 public class SecurityConfig {
 
     /**
@@ -25,16 +21,12 @@ public class SecurityConfig {
         return new BCryptPasswordEncoder();
     }
 
-    /**
-     * Configure security filter chain
-     * @param http HttpSecurity object
-     * @return SecurityFilterChain
-     * @throws Exception if configuration fails
-     */
+    /*
+    // 临时注释掉Spring Security配置
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
-            .csrf(csrf -> csrf.disable())
+            .csrf(AbstractHttpConfigurer::disable)
             .authorizeHttpRequests(authz -> authz
                 .requestMatchers("/api/**").permitAll()
                 .requestMatchers("/swagger-ui/**").permitAll()
@@ -47,6 +39,7 @@ public class SecurityConfig {
         
         return http.build();
     }
+    */
 }
 
 

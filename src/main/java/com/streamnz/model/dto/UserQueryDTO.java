@@ -5,18 +5,25 @@ import jakarta.validation.constraints.AssertTrue;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 
 /**
- * User query DTO
- * Used to encapsulate all possible query conditions
+ * User query DTO with pagination support
+ * Extends PageParam to include pagination and sorting capabilities
  */
 @Data
-@Schema(description = "User query parameters")
-public class UserQueryDTO {
+@EqualsAndHashCode(callSuper = true)
+@Schema(description = "User query parameters with pagination and sorting")
+public class UserQueryDTO extends PageParam {
+
+    // Public constructor for JSON deserialization
+    public UserQueryDTO() {
+        super();
+    }
 
     @Schema(description = "Username search keyword")
     @Size(max = 50, message = "Username length cannot exceed 50 characters")
@@ -53,103 +60,115 @@ public class UserQueryDTO {
              message = "Invalid updated time end format, should be: yyyy-MM-dd HH:mm:ss")
     private String updatedAtEnd;
 
-    @Schema(description = "Email domain", example = "test.com")
-    @Pattern(regexp = "^[a-zA-Z0-9.-]+$", message = "Invalid email domain format")
+    @Schema(description = "Email domain search", example = "gmail.com")
     @Size(max = 50, message = "Email domain length cannot exceed 50 characters")
     private String emailDomain;
 
-    // Time format constant
-    private static final DateTimeFormatter DATE_TIME_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+    /**
+     * Custom validation: Created time range validation
+     */
+    @AssertTrue(message = "Created time start must be before created time end")
+    public boolean isCreatedTimeRangeValid() {
+        if (createdAtStart == null || createdAtEnd == null) {
+            return true;
+        }
+        LocalDateTime start = getCreatedAtStartAsDateTime();
+        LocalDateTime end = getCreatedAtEndAsDateTime();
+        return start == null || end == null || !start.isAfter(end);
+    }
 
     /**
-     * Get created time start (LocalDateTime type)
+     * Custom validation: Updated time range validation
      */
+    @AssertTrue(message = "Updated time start must be before updated time end")
+    public boolean isUpdatedTimeRangeValid() {
+        if (updatedAtStart == null || updatedAtEnd == null) {
+            return true;
+        }
+        LocalDateTime start = getUpdatedAtStartAsDateTime();
+        LocalDateTime end = getUpdatedAtEndAsDateTime();
+        return start == null || end == null || !start.isAfter(end);
+    }
+
+    /**
+     * Custom validation: Email domain format validation
+     */
+    @AssertTrue(message = "Email domain format is invalid")
+    public boolean isEmailDomainValid() {
+        if (emailDomain == null || emailDomain.trim().isEmpty()) {
+            return true;
+        }
+        // Simple domain format validation
+        return emailDomain.matches("^[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$");
+    }
+
+    // DateTime conversion methods
     public LocalDateTime getCreatedAtStartAsDateTime() {
         return parseDateTime(createdAtStart);
     }
 
-    /**
-     * Get created time end (LocalDateTime type)
-     */
     public LocalDateTime getCreatedAtEndAsDateTime() {
         return parseDateTime(createdAtEnd);
     }
 
-    /**
-     * Get updated time start (LocalDateTime type)
-     */
     public LocalDateTime getUpdatedAtStartAsDateTime() {
         return parseDateTime(updatedAtStart);
     }
 
-    /**
-     * Get updated time end (LocalDateTime type)
-     */
     public LocalDateTime getUpdatedAtEndAsDateTime() {
         return parseDateTime(updatedAtEnd);
     }
 
-    /**
-     * Parse time string to LocalDateTime
-     */
     private LocalDateTime parseDateTime(String dateTimeStr) {
         if (dateTimeStr == null || dateTimeStr.trim().isEmpty()) {
             return null;
         }
         try {
-            return LocalDateTime.parse(dateTimeStr.trim(), DATE_TIME_FORMATTER);
+            return LocalDateTime.parse(dateTimeStr, DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
         } catch (DateTimeParseException e) {
-            throw new IllegalArgumentException("Invalid time format: " + dateTimeStr + ", should be: yyyy-MM-dd HH:mm:ss");
+            return null;
         }
     }
 
-    /**
-     * Custom validation: created time range logic
-     */
-    @AssertTrue(message = "Created time start cannot be later than created time end")
-    public boolean isCreatedAtRangeValid() {
-        LocalDateTime start = getCreatedAtStartAsDateTime();
-        LocalDateTime end = getCreatedAtEndAsDateTime();
-        
-        if (start != null && end != null) {
-            return !start.isAfter(end);
-        }
-        return true;
+    // Builder pattern methods for query construction
+    public static UserQueryDTO create() {
+        return new UserQueryDTO();
     }
 
-    @AssertTrue(message = "Updated time start cannot be later than updated time end")
-    public boolean isUpdatedAtRangeValid() {
-        LocalDateTime start = getUpdatedAtStartAsDateTime();
-        LocalDateTime end = getUpdatedAtEndAsDateTime();
-        
-        if (start != null && end != null) {
-            return !start.isAfter(end);
-        }
-        return true;
+    public UserQueryDTO withUsername(String username) {
+        this.username = username;
+        return this;
     }
 
-    /**
-     * Custom validation: time cannot be in the future (allow current year)
-     */
-    @AssertTrue(message = "Created time start cannot be in the future")
-    public boolean isCreatedAtStartNotFuture() {
-        LocalDateTime start = getCreatedAtStartAsDateTime();
-        if (start != null) {
-            // Allow current year time
-            LocalDateTime now = LocalDateTime.now();
-            return !start.isAfter(now.plusYears(1));
-        }
-        return true;
+    public UserQueryDTO withEmail(String email) {
+        this.email = email;
+        return this;
     }
 
-    @AssertTrue(message = "Updated time start cannot be in the future")
-    public boolean isUpdatedAtStartNotFuture() {
-        LocalDateTime start = getUpdatedAtStartAsDateTime();
-        if (start != null) {
-            // Allow current year time
-            LocalDateTime now = LocalDateTime.now();
-            return !start.isAfter(now.plusYears(1));
-        }
-        return true;
+    public UserQueryDTO withFullName(String fullName) {
+        this.fullName = fullName;
+        return this;
+    }
+
+    public UserQueryDTO withEnabled(Boolean enabled) {
+        this.enabled = enabled;
+        return this;
+    }
+
+    public UserQueryDTO withCreatedTimeRange(String start, String end) {
+        this.createdAtStart = start;
+        this.createdAtEnd = end;
+        return this;
+    }
+
+    public UserQueryDTO withUpdatedTimeRange(String start, String end) {
+        this.updatedAtStart = start;
+        this.updatedAtEnd = end;
+        return this;
+    }
+
+    public UserQueryDTO withEmailDomain(String emailDomain) {
+        this.emailDomain = emailDomain;
+        return this;
     }
 } 

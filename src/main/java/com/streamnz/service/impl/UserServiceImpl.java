@@ -5,11 +5,14 @@ import cn.hutool.core.lang.Snowflake;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.streamnz.exception.StreamNZException;
 import com.streamnz.mapper.UserMapper;
 import com.streamnz.model.dto.UserCreateDTO;
 import com.streamnz.model.dto.UserQueryDTO;
 import com.streamnz.model.dto.UserUpdateDTO;
 import com.streamnz.model.po.User;
+import com.streamnz.model.vo.PageVO;
+import com.streamnz.model.vo.UserVO;
 import com.streamnz.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -17,6 +20,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 /**
  * Implementation of UserService interface
@@ -31,10 +35,21 @@ public class UserServiceImpl implements UserService {
     private final Snowflake snowflake;
 
     @Override
-    public Page<User> pageQueryWithConditions(Long current, Long size, UserQueryDTO queryDTO) {
-        Page<User> page = new Page<>(current, size);
+    public PageVO<UserVO> pageQueryWithConditions(UserQueryDTO queryDTO) {
+        Page<User> page = queryDTO.toMybatisPlusPage();
         LambdaQueryWrapper<User> queryWrapper = buildQueryWrapper(queryDTO);
-        return userMapper.selectPage(page, queryWrapper);
+        Page<User> userPage = userMapper.selectPage(page, queryWrapper);
+
+        List<UserVO> userVOList = userPage.getRecords().stream()
+            .map(UserVO::new)
+            .toList();
+        return new PageVO<>(
+            userVOList,
+            userPage.getTotal(),
+            userPage.getCurrent(),
+            userPage.getSize(),
+            userPage.getPages()
+        );
     }
 
     private LambdaQueryWrapper<User> buildQueryWrapper(UserQueryDTO queryDTO) {
@@ -42,6 +57,8 @@ public class UserServiceImpl implements UserService {
         if (queryDTO == null) {
             return queryWrapper.orderByDesc(User::getCreatedAt);
         }
+        
+        // Build query conditions
         queryWrapper.like(StringUtils.hasText(queryDTO.getUsername()), User::getUsername, queryDTO.getUsername())
                    .like(StringUtils.hasText(queryDTO.getEmail()), User::getEmail, queryDTO.getEmail())
                    .like(StringUtils.hasText(queryDTO.getFullName()), User::getFullName, queryDTO.getFullName())
@@ -50,14 +67,15 @@ public class UserServiceImpl implements UserService {
                    .le(queryDTO.getCreatedAtEndAsDateTime() != null, User::getCreatedAt, queryDTO.getCreatedAtEndAsDateTime())
                    .ge(queryDTO.getUpdatedAtStartAsDateTime() != null, User::getUpdatedAt, queryDTO.getUpdatedAtStartAsDateTime())
                    .le(queryDTO.getUpdatedAtEndAsDateTime() != null, User::getUpdatedAt, queryDTO.getUpdatedAtEndAsDateTime())
-                   .like(StringUtils.hasText(queryDTO.getEmailDomain()), User::getEmail, "@" + queryDTO.getEmailDomain())
-                   .orderByDesc(User::getCreatedAt);
+                   .like(StringUtils.hasText(queryDTO.getEmailDomain()), User::getEmail, "@" + queryDTO.getEmailDomain());
+        
+        // Apply sorting if no custom sorts are specified, use default
+        if (!queryDTO.hasSorts()) {
+            queryWrapper.orderByDesc(User::getCreatedAt);
+        }
+        // Note: Custom sorting is handled by MyBatis-Plus Page object in toMybatisPlusPage()
+        
         return queryWrapper;
-    }
-
-    @Override
-    public User findById(Long id) {
-        return userMapper.selectById(id);
     }
 
     @Override
@@ -68,24 +86,27 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public User createUser(UserCreateDTO createDTO) {
+    public User findByEmail(String email) {
+        QueryWrapper<User> queryWrapper = new QueryWrapper<>();
+        queryWrapper.eq("email", email);
+        return userMapper.selectOne(queryWrapper);
+    }
+
+    @Override
+    public UserVO createUser(UserCreateDTO createDTO) {
         // Check username uniqueness
         User existingUser = findByUsername(createDTO.getUsername());
         if (existingUser != null) {
-            throw new IllegalArgumentException("Username already exists: " + createDTO.getUsername());
+            throw new StreamNZException("Username already exists: " + createDTO.getUsername());
         }
-        
+
         // Check email uniqueness
-        if (StringUtils.hasText(createDTO.getEmail())) {
-            QueryWrapper<User> queryWrapper = new QueryWrapper<>();
-            queryWrapper.eq("email", createDTO.getEmail());
-            User existingEmailUser = userMapper.selectOne(queryWrapper);
-            if (existingEmailUser != null) {
-                throw new IllegalArgumentException("Email already exists: " + createDTO.getEmail());
-            }
+        User existingEmailUser = findByEmail(createDTO.getEmail());
+        if (existingEmailUser != null) {
+            throw new StreamNZException("Email already exists: " + createDTO.getEmail());
         }
-        
-        // Use Hutool BeanUtil to copy properties from DTO to PO
+
+        // DTO to PO
         User user = BeanUtil.copyProperties(createDTO, User.class);
         // Generate unique ID using Hutool Snowflake
         user.setId(snowflake.nextId());
@@ -93,55 +114,35 @@ public class UserServiceImpl implements UserService {
         user.setPassword(passwordEncoder.encode(createDTO.getPassword()));
         user.setCreatedAt(LocalDateTime.now());
         user.setUpdatedAt(LocalDateTime.now());
-        
+        user.setEnabled(true);
+
         userMapper.insert(user);
-        return user;
+        return BeanUtil.copyProperties(user, UserVO.class);
     }
 
     @Override
-    public User createUser(User user) {
-        // Generate unique ID using Hutool Snowflake if not provided
-        if (user.getId() == null) {
-            user.setId(snowflake.nextId());
-        }
-        
-        // Encode password before saving
-        user.setPassword(passwordEncoder.encode(user.getPassword()));
-        user.setCreatedAt(LocalDateTime.now());
-        user.setUpdatedAt(LocalDateTime.now());
-
-        if (user.getEnabled() == null) {
-            user.setEnabled(true);
-        }
-
-        userMapper.insert(user);
-        return user;
-    }
-
-    @Override
-    public User updateUser(UserUpdateDTO updateDTO) {
+    public UserVO updateUser(UserUpdateDTO updateDTO) {
+        // Validate ID
         User existingUser = userMapper.selectById(updateDTO.getId());
         if (existingUser == null) {
-            return null;
+            throw new StreamNZException("User not found with ID: " + updateDTO.getId());
         }
-        
+
         // Check if any field is updated
         if (!updateDTO.hasAnyField()) {
-            throw new IllegalArgumentException("At least one field must be provided for update");
+            throw new StreamNZException("At least one field must be provided for update");
         }
-        
+
         // Check username uniqueness (if updating username)
-        if (StringUtils.hasText(updateDTO.getUsername()) && 
-            !updateDTO.getUsername().equals(existingUser.getUsername())) {
+        if (StringUtils.hasText(updateDTO.getUsername()) && !updateDTO.getUsername().equals(existingUser.getUsername())) {
             User existingUsernameUser = findByUsername(updateDTO.getUsername());
             if (existingUsernameUser != null) {
-                throw new IllegalArgumentException("Username already exists: " + updateDTO.getUsername());
+                throw new StreamNZException("Username already exists: " + updateDTO.getUsername());
             }
         }
-        
+
         // Check email uniqueness (if updating email)
-        if (StringUtils.hasText(updateDTO.getEmail()) && 
-            !updateDTO.getEmail().equals(existingUser.getEmail())) {
+        if (StringUtils.hasText(updateDTO.getEmail()) && !updateDTO.getEmail().equals(existingUser.getEmail())) {
             QueryWrapper<User> queryWrapper = new QueryWrapper<>();
             queryWrapper.eq("email", updateDTO.getEmail());
             User existingEmailUser = userMapper.selectOne(queryWrapper);
@@ -149,49 +150,34 @@ public class UserServiceImpl implements UserService {
                 throw new IllegalArgumentException("Email already exists: " + updateDTO.getEmail());
             }
         }
-        
+
         // Use Hutool BeanUtil to copy non-null properties from DTO to existing User
         BeanUtil.copyProperties(updateDTO, existingUser, "id", "createdAt");
-        
+
         // Handle password encoding if provided
         if (StringUtils.hasText(updateDTO.getPassword())) {
             existingUser.setPassword(passwordEncoder.encode(updateDTO.getPassword()));
         }
-        
+
         existingUser.setUpdatedAt(LocalDateTime.now());
-        
+
         userMapper.updateById(existingUser);
-        return existingUser;
+        return BeanUtil.copyProperties(existingUser, UserVO.class);
     }
 
-    @Override
-    public User updateUser(Long id, User user) {
-        User existingUser = userMapper.selectById(id);
-        if (existingUser == null) {
-            return null;
-        }
 
-        // Update fields
+    @Override
+    public boolean disableUser(Long id) {
+        // Set enabled to false
+        User user = new User();
         user.setId(id);
-
-        // Only encode password if it's provided and changed
-        if (user.getPassword() != null && !user.getPassword().isEmpty() && 
-            !user.getPassword().equals(existingUser.getPassword())) {
-            user.setPassword(passwordEncoder.encode(user.getPassword()));
-        } else {
-            user.setPassword(existingUser.getPassword());
-        }
-
+        user.setEnabled(false);
         user.setUpdatedAt(LocalDateTime.now());
-        user.setCreatedAt(existingUser.getCreatedAt());
-
-        userMapper.updateById(user);
-        return user;
-    }
-
-    @Override
-    public boolean deleteUser(Long id) {
-        int result = userMapper.deleteById(id);
+        int result = userMapper.updateById(user);
+        // If result is 0, user not found or not updated
+        if (result == 0) {
+            throw new StreamNZException("User not found or already disabled with ID: " + id);
+        }
         return result > 0;
     }
 }

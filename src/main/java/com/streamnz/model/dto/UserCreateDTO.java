@@ -1,7 +1,11 @@
 package com.streamnz.model.dto;
 
+import com.streamnz.annotation.DefaultFullName;
 import io.swagger.v3.oas.annotations.media.Schema;
-import jakarta.validation.constraints.*;
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Pattern;
+import jakarta.validation.constraints.Size;
 import lombok.Data;
 
 /**
@@ -9,6 +13,7 @@ import lombok.Data;
  * Used to encapsulate user creation request parameters
  */
 @Data
+@DefaultFullName // Custom annotation to set the full name based on username if empty
 @Schema(description = "User creation request parameters")
 public class UserCreateDTO {
 
@@ -25,10 +30,6 @@ public class UserCreateDTO {
              message = "Password must contain at least one lowercase letter, one uppercase letter and one number")
     private String password;
 
-    @Schema(description = "Confirm password", example = "password123")
-    @NotBlank(message = "Confirm password cannot be empty")
-    private String confirmPassword;
-
     @Schema(description = "Email", example = "john.doe@example.com")
     @NotBlank(message = "Email cannot be empty")
     @Email(message = "Invalid email format")
@@ -36,13 +37,10 @@ public class UserCreateDTO {
     private String email;
 
     @Schema(description = "Full name", example = "John Doe")
-    @NotBlank(message = "Full name cannot be empty")
     @Size(min = 2, max = 100, message = "Full name length must be between 2-100 characters")
     @Pattern(regexp = "^[a-zA-Z\\s]+$", message = "Full name can only contain letters and spaces")
     private String fullName;
 
-    @Schema(description = "Enabled status", example = "true", defaultValue = "true")
-    private Boolean enabled;
 
 
 } 

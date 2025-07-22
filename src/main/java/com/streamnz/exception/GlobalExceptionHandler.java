@@ -19,29 +19,43 @@ import java.util.Map;
 public class GlobalExceptionHandler {
 
     /**
-     * Handle parameter validation exceptions
+     * Handle self define exceptions
+     */
+    @ExceptionHandler(StreamNZException.class)
+    public ResponseEntity<Map<String, Object>> handleStreamnzException(StreamNZException ex) {
+        Map<String, Object> response = new HashMap<>();
+        // only return the error message
+        response.put("message", ex.getMessage());
+
+        log.error("StreamnzException occurred: {}", ex.getMessage(), ex);
+        return ResponseEntity.badRequest().body(response);
+    }
+
+
+
+    /**
+     * When @Valid Handle method argument validation exceptions
      */
     @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ResponseEntity<Map<String, Object>> handleValidationExceptions(MethodArgumentNotValidException ex) {
+    public ResponseEntity<Map<String, Object>> handleMethodArgumentNotValidException(
+            MethodArgumentNotValidException ex) {
         Map<String, Object> response = new HashMap<>();
         Map<String, String> errors = new HashMap<>();
-        
-        ex.getBindingResult().getAllErrors().forEach((error) -> {
-            String fieldName = ((FieldError) error).getField();
-            String errorMessage = error.getDefaultMessage();
-            errors.put(fieldName, errorMessage);
-        });
-        
+
+        for (FieldError error : ex.getBindingResult().getFieldErrors()) {
+            errors.put(error.getField(), error.getDefaultMessage());
+        }
+
         response.put("message", "Parameter validation failed");
         response.put("errors", errors);
         response.put("status", HttpStatus.BAD_REQUEST.value());
-        
-        log.warn("Parameter validation failed: {}", errors);
+
+        log.warn("Validation failed: {}", errors);
         return ResponseEntity.badRequest().body(response);
     }
 
     /**
-     * Handle constraint validation exceptions
+     * Handle validation exceptions
      */
     @ExceptionHandler(jakarta.validation.ConstraintViolationException.class)
     public ResponseEntity<Map<String, Object>> handleConstraintViolationException(
