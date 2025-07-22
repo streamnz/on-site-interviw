@@ -28,8 +28,7 @@ public class AuthenticationInterceptor implements HandlerInterceptor {
     
     // Paths that don't require authentication
     private static final List<String> PUBLIC_PATHS = Arrays.asList(
-            "/api/auth/login",
-            "/api/auth/register",
+            "/api/auth/",
             "/api/test/date-format/demo",
             "/actuator/health",
             "/swagger-ui",

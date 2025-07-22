@@ -133,30 +133,5 @@ public class AuthServiceImpl implements AuthService {
         log.info("User logged out, token: {}", token.substring(0, Math.min(20, token.length())) + "...");
     }
 
-    @Override
-    public AuthResponse.UserInfo getCurrentUser(String token) {
-        // Validate token and extract username
-        if (!jwtUtils.validateToken(token)) {
-            throw new RuntimeException("Invalid or expired token");
-        }
-        
-        String username = jwtUtils.extractUsername(token);
-        
-        // Get user information
-        User user = userMapper.selectByUsername(username);
-        if (user == null) {
-            throw new RuntimeException("User not found");
-        }
-        
-        List<Role> roles = roleMapper.findRolesByUserId(user.getId());
-        String[] roleNames = roles.stream().map(Role::getName).toArray(String[]::new);
-        
-        return AuthResponse.UserInfo.builder()
-                .id(user.getId())
-                .username(user.getUsername())
-                .email(user.getEmail())
-                .fullName(user.getFullName())
-                .roles(roleNames)
-                .build();
-    }
+
 } 

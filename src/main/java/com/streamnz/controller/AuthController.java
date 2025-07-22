@@ -63,19 +63,5 @@ public class AuthController {
         return ResponseEntity.ok(ResponseVO.success("Logout successful", null));
     }
 
-    /**
-     * Get current user info
-     */
-    @GetMapping("/me")
-    @Operation(summary = "Get Current User Info", description = "Get current logged in user information")
-    public ResponseEntity<ResponseVO<AuthResponse.UserInfo>> getCurrentUser(HttpServletRequest request) {
-        String authHeader = request.getHeader("Authorization");
-        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
-            return ResponseEntity.ok(ResponseVO.error("No valid token provided"));
-        }
-        
-        String token = authHeader.substring(7);
-        AuthResponse.UserInfo userInfo = authService.getCurrentUser(token);
-        return ResponseEntity.ok(ResponseVO.success("Current user information retrieved successfully", userInfo));
-    }
+
 } 
