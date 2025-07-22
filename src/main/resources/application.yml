@@ -11,6 +11,11 @@ spring:
     url: jdbc:sqlite:sql-lite/identifier.sqlite
     username:
     password:
+    sql:
+      init:
+        mode: always
+        schema-locations: classpath:db/schema.sql
+        data-locations: classpath:db/data.sql
 
   # MyBatis-Plus configuration
   mybatis-plus:
@@ -40,3 +45,8 @@ springdoc:
     path: /swagger-ui.html
     tags-sorter: alpha
     operations-sorter: alpha
+
+# JWT configuration
+jwt:
+  secret: your-secret-key-here-make-it-long-enough-for-security-at-least-256-bits
+  expiration: 86400000  # 24 hours in milliseconds

@@ -29,6 +29,9 @@ public class UserVO {
     @Schema(description = "Full name")
     private String fullName;
 
+    @Schema(description = "User roles (from RBAC system)")
+    private String[] roles;
+
     @Schema(description = "Enabled status", example = "true")
     private Boolean enabled;
 
@@ -48,6 +51,8 @@ public class UserVO {
             this.username = user.getUsername();
             this.email = user.getEmail();
             this.fullName = user.getFullName();
+            // Roles are now managed through RBAC system
+            this.roles = new String[]{"USER"}; // Default role
             this.enabled = user.getEnabled();
             this.createdAt = user.getCreatedAt();
             this.updatedAt = user.getUpdatedAt();

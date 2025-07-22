@@ -122,8 +122,6 @@ public class UserServiceImpl implements UserService {
             user.setEnabled(true);
         }
 
-        // Role is now managed through RBAC system
-
         userMapper.insert(user);
         return user;
     }
