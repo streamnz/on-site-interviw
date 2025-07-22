@@ -41,10 +41,6 @@ public class UserCreateDTO {
     @Pattern(regexp = "^[a-zA-Z\\s]+$", message = "Full name can only contain letters and spaces")
     private String fullName;
 
-    @Schema(description = "User role", example = "USER", defaultValue = "USER")
-    @Pattern(regexp = "^(ADMIN|MANAGER|USER)$", message = "Role can only be ADMIN, MANAGER or USER")
-    private String role;
-
     @Schema(description = "Enabled status", example = "true", defaultValue = "true")
     private Boolean enabled;
 
@@ -99,9 +95,6 @@ public class UserCreateDTO {
      * Set default values
      */
     public void setDefaults() {
-        if (role == null || role.trim().isEmpty()) {
-            this.role = "USER";
-        }
         if (enabled == null) {
             this.enabled = true;
         }

@@ -29,9 +29,6 @@ public class UserVO {
     @Schema(description = "Full name")
     private String fullName;
 
-    @Schema(description = "User role", example = "ADMIN")
-    private String role;
-
     @Schema(description = "Enabled status", example = "true")
     private Boolean enabled;
 
@@ -51,7 +48,6 @@ public class UserVO {
             this.username = user.getUsername();
             this.email = user.getEmail();
             this.fullName = user.getFullName();
-            this.role = user.getRole();
             this.enabled = user.getEnabled();
             this.createdAt = user.getCreatedAt();
             this.updatedAt = user.getUpdatedAt();

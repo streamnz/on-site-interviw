@@ -30,10 +30,6 @@ public class UserQueryDTO {
     @Size(max = 100, message = "Full name length cannot exceed 100 characters")
     private String fullName;
 
-    @Schema(description = "User role", example = "ADMIN")
-    @Pattern(regexp = "^(ADMIN|MANAGER|USER)$", message = "Role can only be ADMIN, MANAGER or USER")
-    private String role;
-
     @Schema(description = "Enabled status", example = "true")
     private Boolean enabled;
 

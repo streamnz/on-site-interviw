@@ -98,7 +98,6 @@ public class UserServiceImpl implements UserService {
         user.setPassword(passwordEncoder.encode(createDTO.getPassword()));
         user.setEmail(createDTO.getEmail());
         user.setFullName(createDTO.getFullName());
-        user.setRole(createDTO.getRole());
         user.setEnabled(createDTO.getEnabled());
         user.setCreatedAt(LocalDateTime.now());
         user.setUpdatedAt(LocalDateTime.now());
@@ -123,9 +122,7 @@ public class UserServiceImpl implements UserService {
             user.setEnabled(true);
         }
 
-        if (user.getRole() == null || user.getRole().isEmpty()) {
-            user.setRole("USER");
-        }
+        // Role is now managed through RBAC system
 
         userMapper.insert(user);
         return user;
@@ -190,12 +187,6 @@ public class UserServiceImpl implements UserService {
             user.setFullName(updateDTO.getFullName());
         } else {
             user.setFullName(existingUser.getFullName());
-        }
-        
-        if (StringUtils.hasText(updateDTO.getRole())) {
-            user.setRole(updateDTO.getRole());
-        } else {
-            user.setRole(existingUser.getRole());
         }
         
         if (updateDTO.getEnabled() != null) {

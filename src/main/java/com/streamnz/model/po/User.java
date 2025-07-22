@@ -33,9 +33,6 @@ public class User {
     @Schema(description = "Full name")
     private String fullName;
 
-    @Schema(description = "User role", example = "USER")
-    private String role;
-
     @Schema(description = "Enabled status", example = "true")
     private Boolean enabled;
 

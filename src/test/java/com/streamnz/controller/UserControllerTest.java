@@ -269,7 +269,6 @@ class UserControllerTest {
         user.setPassword("encodedPassword");
         user.setEmail(email);
         user.setFullName("Test User");
-        user.setRole("USER");
         user.setEnabled(true);
         user.setCreatedAt(LocalDateTime.now());
         user.setUpdatedAt(LocalDateTime.now());

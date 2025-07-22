@@ -73,7 +73,6 @@ class UserServiceTest {
         assertEquals("testuser", result.getUsername());
         assertEquals("test@example.com", result.getEmail());
         assertEquals("Test User", result.getFullName());
-        assertEquals("USER", result.getRole());
         assertTrue(result.getEnabled());
 
         verify(passwordEncoder).encode("Password123");
@@ -289,7 +288,6 @@ class UserServiceTest {
         user.setPassword("encodedPassword");
         user.setEmail(email);
         user.setFullName("Test User");
-        user.setRole("USER");
         user.setEnabled(true);
         user.setCreatedAt(LocalDateTime.now());
         user.setUpdatedAt(LocalDateTime.now());

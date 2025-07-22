@@ -41,10 +41,6 @@ public class UserUpdateDTO {
     @Pattern(regexp = "^[a-zA-Z\\s]+$", message = "Full name can only contain letters and spaces")
     private String fullName;
 
-    @Schema(description = "User role", example = "USER")
-    @Pattern(regexp = "^(ADMIN|MANAGER|USER)$", message = "Role can only be ADMIN, MANAGER or USER")
-    private String role;
-
     @Schema(description = "Enabled status", example = "true")
     private Boolean enabled;
 
@@ -112,7 +108,6 @@ public class UserUpdateDTO {
                (password != null && !password.trim().isEmpty()) ||
                (email != null && !email.trim().isEmpty()) ||
                (fullName != null && !fullName.trim().isEmpty()) ||
-               (role != null && !role.trim().isEmpty()) ||
                (enabled != null);
     }
 
@@ -134,7 +129,6 @@ public class UserUpdateDTO {
                (password != null && !password.trim().isEmpty()) ||
                (email != null && !email.trim().isEmpty()) ||
                (fullName != null && !fullName.trim().isEmpty()) ||
-               (role != null && !role.trim().isEmpty()) ||
                (enabled != null);
     }
 
@@ -147,7 +141,6 @@ public class UserUpdateDTO {
         if (password != null && !password.trim().isEmpty()) count++;
         if (email != null && !email.trim().isEmpty()) count++;
         if (fullName != null && !fullName.trim().isEmpty()) count++;
-        if (role != null && !role.trim().isEmpty()) count++;
         if (enabled != null) count++;
         return count;
     }
