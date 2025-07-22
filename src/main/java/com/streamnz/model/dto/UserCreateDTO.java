@@ -1,8 +1,8 @@
 package com.streamnz.model.dto;
 
 import io.swagger.v3.oas.annotations.media.Schema;
-import lombok.Data;
 import jakarta.validation.constraints.*;
+import lombok.Data;
 
 /**
  * User creation DTO

@@ -1,22 +1,21 @@
 package com.streamnz.service.impl;
 
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
-import com.streamnz.model.po.User;
-import com.streamnz.mapper.UserMapper;
-import com.streamnz.model.dto.UserQueryDTO;
-import com.streamnz.model.dto.UserCreateDTO;
-import com.streamnz.model.dto.UserUpdateDTO;
-import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
-import com.streamnz.service.UserService;
 import com.streamnz.config.SnowflakeIdGenerator;
+import com.streamnz.mapper.UserMapper;
+import com.streamnz.model.dto.UserCreateDTO;
+import com.streamnz.model.dto.UserQueryDTO;
+import com.streamnz.model.dto.UserUpdateDTO;
+import com.streamnz.model.po.User;
+import com.streamnz.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
 import java.time.LocalDateTime;
-import java.util.List;
 
 /**
  * Implementation of UserService interface

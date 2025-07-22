@@ -1,23 +1,22 @@
 package com.streamnz.controller;
 
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
-import com.streamnz.model.po.User;
-import com.streamnz.model.dto.UserQueryDTO;
 import com.streamnz.model.dto.UserCreateDTO;
+import com.streamnz.model.dto.UserQueryDTO;
 import com.streamnz.model.dto.UserUpdateDTO;
-import com.streamnz.model.vo.UserVO;
+import com.streamnz.model.po.User;
 import com.streamnz.model.vo.PageVO;
+import com.streamnz.model.vo.UserVO;
 import com.streamnz.service.UserService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
-
-import jakarta.validation.Valid;
 
 
 @RestController
