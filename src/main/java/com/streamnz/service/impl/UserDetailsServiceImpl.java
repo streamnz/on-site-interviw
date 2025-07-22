@@ -2,11 +2,11 @@ package com.streamnz.service.impl;
 
 import com.streamnz.mapper.RoleMapper;
 import com.streamnz.mapper.UserMapper;
-import com.streamnz.model.po.Role;
-import com.streamnz.model.po.User;
+import com.streamnz.model.entity.Role;
+import com.streamnz.model.entity.User;
+import com.streamnz.model.security.UserPrincipal;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -31,24 +31,21 @@ public class UserDetailsServiceImpl implements UserDetailsService {
         User user = userMapper.selectByUsername(username);
         
         if (user == null) {
-            throw new UsernameNotFoundException("用户不存在: " + username);
+            throw new UsernameNotFoundException("User does not exist: " + username);
         }
 
         if (!user.getEnabled()) {
-            throw new UsernameNotFoundException("用户已被禁用: " + username);
+            throw new UsernameNotFoundException("User is disabled: " + username);
         }
 
         // Get user roles
         List<Role> roles = roleMapper.findRolesByUserId(user.getId());
-        List<SimpleGrantedAuthority> authorities = roles.stream()
-                .map(role -> new SimpleGrantedAuthority("ROLE_" + role.getName()))
+        List<String> roleNames = roles.stream()
+                .map(Role::getName)
                 .collect(Collectors.toList());
 
-        return org.springframework.security.core.userdetails.User.builder()
-                .username(user.getUsername())
-                .password(user.getPassword())
-                .authorities(authorities)
-                .disabled(!user.getEnabled())
-                .build();
+        log.debug("User {} loaded successfully, roles: {}", username, roleNames);
+
+        return UserPrincipal.create(user, roleNames);
     }
 } 

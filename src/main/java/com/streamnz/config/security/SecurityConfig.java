@@ -1,4 +1,4 @@
-package com.streamnz.config;
+package com.streamnz.config.security;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
@@ -80,6 +80,10 @@ public class SecurityConfig {
                 .requestMatchers("/swagger-ui.html").permitAll()
                 .requestMatchers("/swagger-ui/index.html").permitAll()
                 .requestMatchers("/api/test/**").permitAll()
+                .requestMatchers("/actuator/**").permitAll()
+                .requestMatchers("/api/monitor/**").permitAll()
+                .requestMatchers("/api/resources/**").authenticated()
+                .requestMatchers("/api/**").authenticated()
                 .anyRequest().authenticated()
             )
             .authenticationProvider(authenticationProvider())

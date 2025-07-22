@@ -1,5 +1,6 @@
-package com.streamnz.config;
+package com.streamnz.config.database;
 
+import com.streamnz.util.SnowflakeIdGenerator;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 

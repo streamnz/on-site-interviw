@@ -1,8 +1,10 @@
 package com.streamnz.exception;
 
+import com.streamnz.model.vo.ApiResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -22,8 +24,7 @@ public class GlobalExceptionHandler {
      * Handle parameter validation exceptions
      */
     @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ResponseEntity<Map<String, Object>> handleValidationExceptions(MethodArgumentNotValidException ex) {
-        Map<String, Object> response = new HashMap<>();
+    public ResponseEntity<ApiResponse<Map<String, String>>> handleValidationExceptions(MethodArgumentNotValidException ex) {
         Map<String, String> errors = new HashMap<>();
         
         ex.getBindingResult().getAllErrors().forEach((error) -> {
@@ -32,21 +33,16 @@ public class GlobalExceptionHandler {
             errors.put(fieldName, errorMessage);
         });
         
-        response.put("message", "Parameter validation failed");
-        response.put("errors", errors);
-        response.put("status", HttpStatus.BAD_REQUEST.value());
-        
         log.warn("Parameter validation failed: {}", errors);
-        return ResponseEntity.badRequest().body(response);
+        return ResponseEntity.badRequest().body(ApiResponse.error(400, "Parameter validation failed", errors));
     }
 
     /**
      * Handle constraint validation exceptions
      */
     @ExceptionHandler(jakarta.validation.ConstraintViolationException.class)
-    public ResponseEntity<Map<String, Object>> handleConstraintViolationException(
+    public ResponseEntity<ApiResponse<Map<String, String>>> handleConstraintViolationException(
             jakarta.validation.ConstraintViolationException ex) {
-        Map<String, Object> response = new HashMap<>();
         Map<String, String> errors = new HashMap<>();
         
         ex.getConstraintViolations().forEach(violation -> {
@@ -55,25 +51,27 @@ public class GlobalExceptionHandler {
             errors.put(fieldName, errorMessage);
         });
         
-        response.put("message", "Parameter validation failed");
-        response.put("errors", errors);
-        response.put("status", HttpStatus.BAD_REQUEST.value());
-        
         log.warn("Constraint validation failed: {}", errors);
-        return ResponseEntity.badRequest().body(response);
+        return ResponseEntity.badRequest().body(ApiResponse.error(400, "Parameter validation failed", errors));
+    }
+
+    /**
+     * Handle access denied exceptions
+     */
+    @ExceptionHandler(AccessDeniedException.class)
+    public ResponseEntity<ApiResponse<Void>> handleAccessDeniedException(AccessDeniedException ex) {
+        log.warn("Access denied: {}", ex.getMessage());
+        return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                .body(ApiResponse.error(403, "Access denied"));
     }
 
     /**
      * Handle generic exceptions
      */
     @ExceptionHandler(Exception.class)
-    public ResponseEntity<Map<String, Object>> handleGenericException(Exception ex) {
-        Map<String, Object> response = new HashMap<>();
-        response.put("message", "Internal server error");
-        response.put("error", ex.getMessage());
-        response.put("status", HttpStatus.INTERNAL_SERVER_ERROR.value());
-        
+    public ResponseEntity<ApiResponse<Void>> handleGenericException(Exception ex) {
         log.error("Internal server error", ex);
-        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body(ApiResponse.error(500, "Internal server error"));
     }
 } 

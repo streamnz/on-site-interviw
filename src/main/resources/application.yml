@@ -11,6 +11,30 @@ spring:
     url: jdbc:sqlite:sql-lite/identifier.sqlite
     username:
     password:
+    # HikariCP connection pool configuration
+    hikari:
+      # Connection pool name
+      pool-name: UserManagementHikariCP
+      # Minimum idle connections
+      minimum-idle: 5
+      # Maximum pool size
+      maximum-pool-size: 20
+      # Connection timeout (milliseconds)
+      connection-timeout: 30000
+      # Idle timeout (milliseconds) - 10 minutes
+      idle-timeout: 600000
+      # Maximum connection lifetime (milliseconds) - 30 minutes
+      max-lifetime: 1800000
+      # Connection test query
+      connection-test-query: SELECT 1
+      # Auto commit
+      auto-commit: true
+      # Connection leak detection threshold (milliseconds) - 1 minute
+      leak-detection-threshold: 60000
+      # Initialization fail timeout
+      initialization-fail-timeout: 1
+      # Validate connection on migrate
+      validate-on-migrate: true
     sql:
       init:
         mode: always
@@ -29,11 +53,27 @@ spring:
         logic-delete-value: 1
         logic-not-delete-value: 0
 
+# Monitoring configuration
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics,hikaricp
+  endpoint:
+    health:
+      show-details: always
+  metrics:
+    export:
+      prometheus:
+        enabled: true
+
 # Logging configuration
 logging:
   level:
     com.streamnz: DEBUG
     org.springframework.security: DEBUG
+    com.zaxxer.hikari: DEBUG
+    org.springframework.jdbc: DEBUG
   pattern:
     console: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n"
 

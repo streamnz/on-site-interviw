@@ -54,19 +54,19 @@ CREATE TABLE IF NOT EXISTS roles_resources_r (
 
 -- Insert default roles
 INSERT OR IGNORE INTO roles (id, name, description) VALUES 
-(1, 'ADMIN', '系统管理员'),
-(2, 'USER', '普通用户'),
-(3, 'GUEST', '访客用户');
+(1, 'ADMIN', 'System Administrator'),
+(2, 'USER', 'Regular User'),
+(3, 'GUEST', 'Guest User');
 
 -- Insert default resources
 INSERT OR IGNORE INTO resources (id, name, path, method, description) VALUES 
-(1, '用户管理', '/api/users/**', 'GET', '用户管理相关接口'),
-(2, '用户创建', '/api/users', 'POST', '创建用户'),
-(3, '用户更新', '/api/users/**', 'PUT', '更新用户信息'),
-(4, '用户删除', '/api/users/**', 'DELETE', '删除用户'),
-(5, '角色管理', '/api/roles/**', 'GET', '角色管理相关接口'),
-(6, '资源管理', '/api/resources/**', 'GET', '资源管理相关接口'),
-(7, '认证接口', '/api/auth/**', 'POST', '用户认证相关接口');
+(1, 'User Management', '/api/users/**', 'GET', 'User management related interfaces'),
+(2, 'User Creation', '/api/users', 'POST', 'Create user'),
+(3, 'User Update', '/api/users/**', 'PUT', 'Update user information'),
+(4, 'User Deletion', '/api/users/**', 'DELETE', 'Delete user'),
+(5, 'Role Management', '/api/roles/**', 'GET', 'Role management related interfaces'),
+(6, 'Resource Management', '/api/resources/**', 'GET', 'Resource management related interfaces'),
+(7, 'Authentication Interface', '/api/auth/**', 'POST', 'User authentication related interfaces');
 
 -- Insert default admin user
 INSERT OR IGNORE INTO users (id, username, password, email, full_name) 

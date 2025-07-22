@@ -1,4 +1,4 @@
-package com.streamnz.model.po;
+package com.streamnz.model.entity;
 
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableId;

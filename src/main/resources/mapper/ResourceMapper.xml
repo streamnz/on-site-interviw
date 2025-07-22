@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- Query all resource permissions for user -->
+<mapper namespace="com.streamnz.mapper.ResourceMapper">
+
+    <!-- Query user specific permission -->
+    <select id="findUserResources" resultType="com.streamnz.model.entity.Resource">
+        SELECT DISTINCT r.*
+        FROM resources r
+        INNER JOIN roles_resources_r rrr ON r.id = rrr.resource_id
+        INNER JOIN user_roles_r urr ON rrr.role_id = urr.role_id
+        WHERE urr.user_id = #{userId}
+    </select>
+
+    <!-- Check if user has specific permission -->
+    <select id="checkUserPermission" resultType="boolean">
+        SELECT COUNT(*) > 0
+        FROM resources r
+        INNER JOIN roles_resources_r rrr ON r.id = rrr.resource_id
+        INNER JOIN user_roles_r urr ON rrr.role_id = urr.role_id
+        WHERE urr.user_id = #{userId}
+        AND r.path = #{path}
+        AND r.method = #{method}
+    </select>
+
+    <!-- Query all resources corresponding to user roles -->
+    <select id="findResourcesByRoleIds" resultType="com.streamnz.model.entity.Resource">
+        SELECT DISTINCT r.*
+        FROM resources r
+        INNER JOIN roles_resources_r rrr ON r.id = rrr.resource_id
+        WHERE rrr.role_id IN
+        <foreach collection="roleIds" item="roleId" open="(" separator="," close=")">
+            #{roleId}
+        </foreach>
+    </select>
+
+    <!-- Query resources by path and method -->
+    <select id="findByPathAndMethod" resultType="com.streamnz.model.entity.Resource">
+        SELECT * FROM resources
+        WHERE path = #{path} AND method = #{method}
+    </select>
+
+</mapper> 

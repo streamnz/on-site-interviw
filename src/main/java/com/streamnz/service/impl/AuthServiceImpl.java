@@ -1,16 +1,16 @@
 package com.streamnz.service.impl;
 
-import com.streamnz.config.JwtUtils;
-import com.streamnz.config.SnowflakeIdGenerator;
+import com.streamnz.config.security.JwtUtils;
+import com.streamnz.util.SnowflakeIdGenerator;
 import com.streamnz.mapper.RoleMapper;
 import com.streamnz.mapper.UserMapper;
 import com.streamnz.mapper.UserRoleRelationMapper;
-import com.streamnz.model.dto.AuthResponse;
-import com.streamnz.model.dto.LoginRequest;
-import com.streamnz.model.dto.RegisterRequest;
-import com.streamnz.model.po.Role;
-import com.streamnz.model.po.User;
-import com.streamnz.model.po.UserRoleRelation;
+import com.streamnz.model.dto.response.AuthResponse;
+import com.streamnz.model.dto.request.LoginRequest;
+import com.streamnz.model.dto.request.RegisterRequest;
+import com.streamnz.model.entity.Role;
+import com.streamnz.model.entity.User;
+import com.streamnz.model.entity.UserRoleRelation;
 import com.streamnz.service.AuthService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -78,13 +78,13 @@ public class AuthServiceImpl implements AuthService {
     public AuthResponse register(RegisterRequest registerRequest) {
         // Check if username already exists
         if (userMapper.selectByUsername(registerRequest.getUsername()) != null) {
-            throw new RuntimeException("用户名已存在");
+            throw new RuntimeException("Username already exists");
         }
 
         // Check if email already exists
         if (registerRequest.getEmail() != null && 
             userMapper.selectByEmail(registerRequest.getEmail()) != null) {
-            throw new RuntimeException("邮箱已存在");
+            throw new RuntimeException("Email already exists");
         }
 
         // Create new user

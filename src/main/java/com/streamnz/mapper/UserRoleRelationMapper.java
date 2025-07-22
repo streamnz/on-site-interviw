@@ -1,7 +1,7 @@
 package com.streamnz.mapper;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
-import com.streamnz.model.po.UserRoleRelation;
+import com.streamnz.model.entity.UserRoleRelation;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 

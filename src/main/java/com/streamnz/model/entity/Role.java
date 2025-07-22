@@ -1,4 +1,4 @@
-package com.streamnz.model.po;
+package com.streamnz.model.entity;
 
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableId;
@@ -9,28 +9,22 @@ import lombok.Data;
 import java.time.LocalDateTime;
 
 /**
- * Resource entity class
- * Represents the resources table in the database
+ * Role entity class
+ * Represents the roles table in the database
  */
 @Data
-@TableName("resources")
-@Schema(description = "Resource entity")
-public class Resource {
+@TableName("roles")
+@Schema(description = "Role entity")
+public class Role {
 
     @TableId(type = IdType.INPUT)
-    @Schema(description = "Resource ID")
+    @Schema(description = "Role ID")
     private Long id;
 
-    @Schema(description = "Resource name", example = "用户管理")
+    @Schema(description = "Role name", example = "ADMIN")
     private String name;
 
-    @Schema(description = "Resource path", example = "/api/users/**")
-    private String path;
-
-    @Schema(description = "HTTP method", example = "GET")
-    private String method;
-
-    @Schema(description = "Resource description")
+    @Schema(description = "Role description")
     private String description;
 
     @Schema(description = "Created time")

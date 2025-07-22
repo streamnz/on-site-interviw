@@ -1,4 +1,4 @@
-package com.streamnz.model.dto;
+package com.streamnz.model.dto.request;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
@@ -11,11 +11,11 @@ import lombok.Data;
 @Schema(description = "Login request")
 public class LoginRequest {
 
-    @NotBlank(message = "用户名不能为空")
+    @NotBlank(message = "Username cannot be empty")
     @Schema(description = "Username", example = "admin")
     private String username;
 
-    @NotBlank(message = "密码不能为空")
+    @NotBlank(message = "Password cannot be empty")
     @Schema(description = "Password", example = "password")
     private String password;
 } 

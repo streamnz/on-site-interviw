@@ -1,8 +1,8 @@
 package com.streamnz.service;
 
-import com.streamnz.model.dto.AuthResponse;
-import com.streamnz.model.dto.LoginRequest;
-import com.streamnz.model.dto.RegisterRequest;
+import com.streamnz.model.dto.response.AuthResponse;
+import com.streamnz.model.dto.request.LoginRequest;
+import com.streamnz.model.dto.request.RegisterRequest;
 
 /**
  * Authentication service interface

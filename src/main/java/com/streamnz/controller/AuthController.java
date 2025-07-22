@@ -1,8 +1,9 @@
 package com.streamnz.controller;
 
-import com.streamnz.model.dto.AuthResponse;
-import com.streamnz.model.dto.LoginRequest;
-import com.streamnz.model.dto.RegisterRequest;
+import com.streamnz.model.dto.response.AuthResponse;
+import com.streamnz.model.dto.request.LoginRequest;
+import com.streamnz.model.dto.request.RegisterRequest;
+import com.streamnz.model.vo.ApiResponse;
 import com.streamnz.service.AuthService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -21,7 +22,7 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping("/api/auth")
 @RequiredArgsConstructor
-@Tag(name = "认证管理", description = "用户认证相关接口")
+@Tag(name = "Authentication Management", description = "User authentication related interfaces")
 public class AuthController {
 
     private final AuthService authService;
@@ -30,48 +31,49 @@ public class AuthController {
      * User login
      */
     @PostMapping("/login")
-    @Operation(summary = "用户登录", description = "用户登录并返回JWT令牌")
-    public ResponseEntity<AuthResponse> login(@Valid @RequestBody LoginRequest loginRequest) {
+    @Operation(summary = "User Login", description = "User login and return JWT token")
+    public ResponseEntity<ApiResponse<AuthResponse>> login(@Valid @RequestBody LoginRequest loginRequest) {
         log.info("User login attempt: {}", loginRequest.getUsername());
         AuthResponse response = authService.login(loginRequest);
-        return ResponseEntity.ok(response);
+        return ResponseEntity.ok(ApiResponse.success("Login successful", response));
     }
 
     /**
      * User registration
      */
     @PostMapping("/register")
-    @Operation(summary = "用户注册", description = "新用户注册")
-    public ResponseEntity<AuthResponse> register(@Valid @RequestBody RegisterRequest registerRequest) {
+    @Operation(summary = "User Registration", description = "New user registration")
+    public ResponseEntity<ApiResponse<AuthResponse>> register(@Valid @RequestBody RegisterRequest registerRequest) {
         log.info("User registration attempt: {}", registerRequest.getUsername());
         AuthResponse response = authService.register(registerRequest);
-        return ResponseEntity.ok(response);
+        return ResponseEntity.ok(ApiResponse.success("Registration successful", response));
     }
 
     /**
      * User logout
      */
     @PostMapping("/logout")
-    @Operation(summary = "用户登出", description = "用户登出")
-    public ResponseEntity<Void> logout(HttpServletRequest request) {
+    @Operation(summary = "User Logout", description = "User logout")
+    public ResponseEntity<ApiResponse<Void>> logout(HttpServletRequest request) {
         String authHeader = request.getHeader("Authorization");
         if (authHeader != null && authHeader.startsWith("Bearer ")) {
             String token = authHeader.substring(7);
             authService.logout(token);
         }
-        return ResponseEntity.ok().build();
+        return ResponseEntity.ok(ApiResponse.success("Logout successful", null));
     }
 
     /**
      * Get current user info
      */
     @GetMapping("/me")
-    @Operation(summary = "获取当前用户信息", description = "获取当前登录用户的信息")
-    public ResponseEntity<AuthResponse.UserInfo> getCurrentUser(HttpServletRequest request) {
+    @Operation(summary = "Get Current User Info", description = "Get current logged in user information")
+    public ResponseEntity<ApiResponse<AuthResponse.UserInfo>> getCurrentUser(HttpServletRequest request) {
         // This would typically extract user info from the JWT token
         // For now, we'll return a simple response
-        return ResponseEntity.ok(AuthResponse.UserInfo.builder()
+        AuthResponse.UserInfo userInfo = AuthResponse.UserInfo.builder()
                 .username("current_user")
-                .build());
+                .build();
+        return ResponseEntity.ok(ApiResponse.success("Current user information retrieved successfully", userInfo));
     }
 } 

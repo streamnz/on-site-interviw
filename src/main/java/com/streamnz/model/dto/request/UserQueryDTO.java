@@ -1,4 +1,4 @@
-package com.streamnz.model.dto;
+package com.streamnz.model.dto.request;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.AssertTrue;
@@ -30,6 +30,8 @@ public class UserQueryDTO {
     @Size(max = 100, message = "Full name length cannot exceed 100 characters")
     private String fullName;
 
+    // Role field removed as roles are now managed through user_roles_r table
+    // For role-based queries, use the RBAC service or create custom mapper methods
     @Schema(description = "Enabled status", example = "true")
     private Boolean enabled;
 

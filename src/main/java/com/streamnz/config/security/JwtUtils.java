@@ -1,4 +1,4 @@
-package com.streamnz.config;
+package com.streamnz.config.security;
 
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;

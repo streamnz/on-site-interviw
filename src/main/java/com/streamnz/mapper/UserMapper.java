@@ -1,7 +1,7 @@
 package com.streamnz.mapper;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
-import com.streamnz.model.po.User;
+import com.streamnz.model.entity.User;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.annotations.Select;

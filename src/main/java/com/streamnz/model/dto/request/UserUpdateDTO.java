@@ -1,4 +1,4 @@
-package com.streamnz.model.dto;
+package com.streamnz.model.dto.request;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.*;

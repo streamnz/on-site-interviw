@@ -1,4 +1,4 @@
-package com.streamnz.config;
+package com.streamnz.util;
 
 import org.springframework.stereotype.Component;
 

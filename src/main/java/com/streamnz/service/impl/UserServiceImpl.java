@@ -3,13 +3,13 @@ package com.streamnz.service.impl;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
-import com.streamnz.config.SnowflakeIdGenerator;
+import com.streamnz.model.entity.User;
 import com.streamnz.mapper.UserMapper;
-import com.streamnz.model.dto.UserCreateDTO;
-import com.streamnz.model.dto.UserQueryDTO;
-import com.streamnz.model.dto.UserUpdateDTO;
-import com.streamnz.model.po.User;
+import com.streamnz.model.dto.request.UserQueryDTO;
+import com.streamnz.model.dto.request.UserCreateDTO;
+import com.streamnz.model.dto.request.UserUpdateDTO;
 import com.streamnz.service.UserService;
+import com.streamnz.util.SnowflakeIdGenerator;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -37,25 +37,41 @@ public class UserServiceImpl implements UserService {
         return userMapper.selectPage(page, queryWrapper);
     }
 
+    /**
+     * Build dynamic query conditions using LambdaQueryWrapper
+     * @param queryDTO Query condition DTO
+     * @return LambdaQueryWrapper object
+     */
     private LambdaQueryWrapper<User> buildQueryWrapper(UserQueryDTO queryDTO) {
         LambdaQueryWrapper<User> queryWrapper = new LambdaQueryWrapper<>();
+
         if (queryDTO == null) {
             return queryWrapper.orderByDesc(User::getCreatedAt);
         }
+
+        // Username fuzzy search
         queryWrapper.like(StringUtils.hasText(queryDTO.getUsername()), User::getUsername, queryDTO.getUsername())
+                   // Email fuzzy search
                    .like(StringUtils.hasText(queryDTO.getEmail()), User::getEmail, queryDTO.getEmail())
+                   // Full name fuzzy search
                    .like(StringUtils.hasText(queryDTO.getFullName()), User::getFullName, queryDTO.getFullName())
+                   // Enabled status exact match
                    .eq(queryDTO.getEnabled() != null, User::getEnabled, queryDTO.getEnabled())
+                   // Created time range query
                    .ge(queryDTO.getCreatedAtStartAsDateTime() != null, User::getCreatedAt, queryDTO.getCreatedAtStartAsDateTime())
                    .le(queryDTO.getCreatedAtEndAsDateTime() != null, User::getCreatedAt, queryDTO.getCreatedAtEndAsDateTime())
+                   // Updated time range query
                    .ge(queryDTO.getUpdatedAtStartAsDateTime() != null, User::getUpdatedAt, queryDTO.getUpdatedAtStartAsDateTime())
                    .le(queryDTO.getUpdatedAtEndAsDateTime() != null, User::getUpdatedAt, queryDTO.getUpdatedAtEndAsDateTime())
+                   // Email domain filter
                    .like(StringUtils.hasText(queryDTO.getEmailDomain()), User::getEmail, "@" + queryDTO.getEmailDomain())
+                   // Default sort by created time descending
                    .orderByDesc(User::getCreatedAt);
+
         return queryWrapper;
     }
 
-    // Query building logic is now inline for better performance and simplicity
+    // Query building logic now uses LambdaQueryWrapper for better type safety and readability
 
     @Override
     public User findById(Long id) {

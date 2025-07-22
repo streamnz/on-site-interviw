@@ -76,7 +76,7 @@
             <version>${springdoc.version}</version>
         </dependency>
         
-        <!-- WebJars Core - 解决资源处理问题 -->
+        <!-- WebJars Core - Solve resource handling issues -->
         <dependency>
             <groupId>org.webjars</groupId>
             <artifactId>webjars-locator-core</artifactId>
@@ -113,6 +113,18 @@
             <artifactId>jjwt-jackson</artifactId>
             <version>0.12.3</version>
             <scope>runtime</scope>
+        </dependency>
+
+        <!-- HikariCP Connection Pool (included by default in Spring Boot, but explicitly declared) -->
+        <dependency>
+            <groupId>com.zaxxer</groupId>
+            <artifactId>HikariCP</artifactId>
+        </dependency>
+
+        <!-- Actuator for monitoring -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-actuator</artifactId>
         </dependency>
     </dependencies>
 

@@ -1,4 +1,4 @@
-package com.streamnz.config;
+package com.streamnz.config.database;
 
 import com.baomidou.mybatisplus.annotation.DbType;
 import com.baomidou.mybatisplus.core.config.GlobalConfig;

@@ -1,10 +1,10 @@
 package com.streamnz.service;
 
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
-import com.streamnz.model.dto.UserCreateDTO;
-import com.streamnz.model.dto.UserQueryDTO;
-import com.streamnz.model.dto.UserUpdateDTO;
-import com.streamnz.model.po.User;
+import com.streamnz.model.entity.User;
+import com.streamnz.model.dto.request.UserQueryDTO;
+import com.streamnz.model.dto.request.UserCreateDTO;
+import com.streamnz.model.dto.request.UserUpdateDTO;
 
 /**
  * User service interface

@@ -1,6 +1,6 @@
 package com.streamnz.model.vo;
 
-import com.streamnz.model.po.User;
+import com.streamnz.model.entity.User;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
 import lombok.Data;
