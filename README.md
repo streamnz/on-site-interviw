@@ -100,11 +100,14 @@ mvn spring-boot:run
 ### Testing
 
 ```bash
-# Run DTO validation tests
-./scripts/test-dto-validation.sh
+# Run all tests
+mvn test
 
-# Run conditional query tests
-./scripts/test-conditional-query.sh
+# Run specific test class
+mvn test -Dtest=UserControllerTest
+
+# Run API test script
+./src/test/scripts/test-user-controller-api.sh
 ```
 
 ### API Documentation

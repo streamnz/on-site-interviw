@@ -1,0 +1,61 @@
+# Test configuration for integration tests
+server:
+  port: 0 # Use random port for tests
+
+spring:
+  application:
+    name: user-management-system-test
+
+  # Test database configuration
+  datasource:
+    driver-class-name: org.sqlite.JDBC
+    url: jdbc:sqlite:sql-lite/test-identifier.sqlite
+    username:
+    password:
+
+  # Database initialization for tests
+  sql:
+    init:
+      mode: always
+      schema-locations: classpath:db/schema.sql
+      data-locations: classpath:db/test-data.sql
+      continue-on-error: false
+
+  # MyBatis-Plus configuration for tests
+  mybatis-plus:
+    configuration:
+      map-underscore-to-camel-case: true
+      log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+    global-config:
+      db-config:
+        id-type: auto
+        logic-delete-field: deleted
+        logic-delete-value: 1
+        logic-not-delete-value: 0
+
+# Logging configuration for tests
+logging:
+  level:
+    com.streamnz: DEBUG
+    org.springframework.security: DEBUG
+    org.springframework.test: DEBUG
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n"
+
+# Swagger configuration for tests
+springdoc:
+  api-docs:
+    path: /v3/api-docs
+  swagger-ui:
+    path: /swagger-ui.html
+    tags-sorter: alpha
+    operations-sorter: alpha
+
+# Test-specific configurations
+test:
+  database:
+    initialize: true
+    cleanup: true
+  user:
+    default-password: "testpassword123"
+    default-role: "USER"

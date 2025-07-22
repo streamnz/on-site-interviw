@@ -7,7 +7,7 @@ import com.streamnz.mapper.UserMapper;
 import com.streamnz.model.dto.UserQueryDTO;
 import com.streamnz.model.dto.UserCreateDTO;
 import com.streamnz.model.dto.UserUpdateDTO;
-import com.streamnz.query.UserQueryBuilder;
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.streamnz.service.UserService;
 import com.streamnz.config.SnowflakeIdGenerator;
 import lombok.RequiredArgsConstructor;
@@ -27,18 +27,36 @@ public class UserServiceImpl implements UserService {
 
     private final UserMapper userMapper;
     private final PasswordEncoder passwordEncoder;
-    private final UserQueryBuilder userQueryBuilder;
+
     private final SnowflakeIdGenerator snowflakeIdGenerator;
 
 
     @Override
     public Page<User> pageQueryWithConditions(Long current, Long size, UserQueryDTO queryDTO) {
         Page<User> page = new Page<>(current, size);
-        QueryWrapper<User> queryWrapper = userQueryBuilder.buildQueryWrapper(queryDTO);
+        LambdaQueryWrapper<User> queryWrapper = buildQueryWrapper(queryDTO);
         return userMapper.selectPage(page, queryWrapper);
     }
 
-    // Query building logic has been migrated to UserQueryBuilder class for better maintainability and testability
+    private LambdaQueryWrapper<User> buildQueryWrapper(UserQueryDTO queryDTO) {
+        LambdaQueryWrapper<User> queryWrapper = new LambdaQueryWrapper<>();
+        if (queryDTO == null) {
+            return queryWrapper.orderByDesc(User::getCreatedAt);
+        }
+        queryWrapper.like(StringUtils.hasText(queryDTO.getUsername()), User::getUsername, queryDTO.getUsername())
+                   .like(StringUtils.hasText(queryDTO.getEmail()), User::getEmail, queryDTO.getEmail())
+                   .like(StringUtils.hasText(queryDTO.getFullName()), User::getFullName, queryDTO.getFullName())
+                   .eq(queryDTO.getEnabled() != null, User::getEnabled, queryDTO.getEnabled())
+                   .ge(queryDTO.getCreatedAtStartAsDateTime() != null, User::getCreatedAt, queryDTO.getCreatedAtStartAsDateTime())
+                   .le(queryDTO.getCreatedAtEndAsDateTime() != null, User::getCreatedAt, queryDTO.getCreatedAtEndAsDateTime())
+                   .ge(queryDTO.getUpdatedAtStartAsDateTime() != null, User::getUpdatedAt, queryDTO.getUpdatedAtStartAsDateTime())
+                   .le(queryDTO.getUpdatedAtEndAsDateTime() != null, User::getUpdatedAt, queryDTO.getUpdatedAtEndAsDateTime())
+                   .like(StringUtils.hasText(queryDTO.getEmailDomain()), User::getEmail, "@" + queryDTO.getEmailDomain())
+                   .orderByDesc(User::getCreatedAt);
+        return queryWrapper;
+    }
+
+    // Query building logic is now inline for better performance and simplicity
 
     @Override
     public User findById(Long id) {

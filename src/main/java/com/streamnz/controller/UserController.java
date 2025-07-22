@@ -29,6 +29,19 @@ public class UserController {
 
     private final UserService userService;
 
+    @GetMapping
+    @Operation(summary = "Get users list", 
+               description = "Returns a simple list of users with basic pagination")
+    public ResponseEntity<PageVO<UserVO>> getUsers(
+            @Parameter(description = "Current page number, starting from 1")
+            @RequestParam(defaultValue = "1") Long current,
+            @Parameter(description = "Number of records per page") 
+            @RequestParam(defaultValue = "10") Long size) {
+        
+        Page<User> userPage = userService.pageQueryWithConditions(current, size, new UserQueryDTO());
+        PageVO<UserVO> pageVO = new PageVO<>(userPage, UserVO::new);
+        return ResponseEntity.ok(pageVO);
+    }
 
     @PostMapping("/pageQuery")
     @Operation(summary = "Search users with conditions and pagination", 

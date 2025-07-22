@@ -1,31 +1,11 @@
--- Test data script: Insert 1000 user records
--- Purpose: Generate test data for user management system
+-- Test data for integration tests
+-- This file contains sample data for testing purposes
 
--- Generate username format: user001, user002, ... user1000
--- Generate email format: user001@test.com, user002@test.com, ... user1000@test.com
--- Generate full name format: User 001, User 002, ... User 1000
--- Role distribution: 10 ADMIN, 20 MANAGER, 970 USER
--- All users are enabled by default
-
--- Clear existing user data (keep admin user)
-DELETE FROM users WHERE username != 'admin';
-
--- Insert 1000 test users
-INSERT INTO users (username, password, email, full_name, role, enabled, created_at, updated_at) VALUES
-('user001', '$2a$10$N.zmdr9k7uOCQb376NoUnuTJ8iAt6Z5EHsM8lE9lBOsl7iKTVEFDa', 'user001@test.com', 'User 001', 'USER', 1, '2025-01-01 10:00:00', '2025-01-01 10:00:00'),
-('user002', '$2a$10$N.zmdr9k7uOCQb376NoUnuTJ8iAt6Z5EHsM8lE9lBOsl7iKTVEFDa', 'user002@test.com', 'User 002', 'USER', 1, '2025-01-01 10:00:00', '2025-01-01 10:00:00'),
-('user003', '$2a$10$N.zmdr9k7uOCQb376NoUnuTJ8iAt6Z5EHsM8lE9lBOsl7iKTVEFDa', 'user003@test.com', 'User 003', 'USER', 1, '2025-01-01 10:00:00', '2025-01-01 10:00:00'),
-('user004', '$2a$10$N.zmdr9k7uOCQb376NoUnuTJ8iAt6Z5EHsM8lE9lBOsl7iKTVEFDa', 'user004@test.com', 'User 004', 'USER', 1, '2025-01-01 10:00:00', '2025-01-01 10:00:00'),
-('user005', '$2a$10$N.zmdr9k7uOCQb376NoUnuTJ8iAt6Z5EHsM8lE9lBOsl7iKTVEFDa', 'user005@test.com', 'User 005', 'USER', 1, '2025-01-01 10:00:00', '2025-01-01 10:00:00'),
-('user006', '$2a$10$N.zmdr9k7uOCQb376NoUnuTJ8iAt6Z5EHsM8lE9lBOsl7iKTVEFDa', 'user006@test.com', 'User 006', 'USER', 1, '2025-01-01 10:00:00', '2025-01-01 10:00:00'),
-('user007', '$2a$10$N.zmdr9k7uOCQb376NoUnuTJ8iAt6Z5EHsM8lE9lBOsl7iKTVEFDa', 'user007@test.com', 'User 007', 'USER', 1, '2025-01-01 10:00:00', '2025-01-01 10:00:00'),
-('user008', '$2a$10$N.zmdr9k7uOCQb376NoUnuTJ8iAt6Z5EHsM8lE9lBOsl7iKTVEFDa', 'user008@test.com', 'User 008', 'USER', 1, '2025-01-01 10:00:00', '2025-01-01 10:00:00'),
-('user009', '$2a$10$N.zmdr9k7uOCQb376NoUnuTJ8iAt6Z5EHsM8lE9lBOsl7iKTVEFDa', 'user009@test.com', 'User 009', 'USER', 1, '2025-01-01 10:00:00', '2025-01-01 10:00:00'),
-('user010', '$2a$10$N.zmdr9k7uOCQb376NoUnuTJ8iAt6Z5EHsM8lE9lBOsl7iKTVEFDa', 'user010@test.com', 'User 010', 'ADMIN', 1, '2025-01-01 10:00:00', '2025-01-01 10:00:00');
-
--- Continue with remaining users...
--- (This is a sample, the full script would contain all 1000 users)
-
--- Verify inserted data count
-SELECT COUNT(*) as total_users FROM users;
-SELECT role, COUNT(*) as count FROM users GROUP BY role; 
+-- Insert test users for integration tests
+INSERT OR IGNORE INTO users (username, password, email, full_name, role, enabled) 
+VALUES 
+('testuser1', '$2a$10$ixlPY3AAd4ty1l6E2IsQ9OFZi2ba9ZQE0bP7RFcGIWNhyFrrT3YUi', 'testuser1@example.com', 'Test User 1', 'USER', 1),
+('testuser2', '$2a$10$ixlPY3AAd4ty1l6E2IsQ9OFZi2ba9ZQE0bP7RFcGIWNhyFrrT3YUi', 'testuser2@example.com', 'Test User 2', 'USER', 1),
+('testuser3', '$2a$10$ixlPY3AAd4ty1l6E2IsQ9OFZi2ba9ZQE0bP7RFcGIWNhyFrrT3YUi', 'testuser3@example.com', 'Test User 3', 'USER', 1),
+('searchuser', '$2a$10$ixlPY3AAd4ty1l6E2IsQ9OFZi2ba9ZQE0bP7RFcGIWNhyFrrT3YUi', 'searchuser@example.com', 'Search Test User', 'USER', 1),
+('paginationuser', '$2a$10$ixlPY3AAd4ty1l6E2IsQ9OFZi2ba9ZQE0bP7RFcGIWNhyFrrT3YUi', 'paginationuser@example.com', 'Pagination Test User', 'USER', 1); 
