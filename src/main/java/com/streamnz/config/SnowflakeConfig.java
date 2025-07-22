@@ -1,22 +1,24 @@
 package com.streamnz.config;
 
+import cn.hutool.core.lang.Snowflake;
+import cn.hutool.core.util.IdUtil;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 /**
  * Snowflake ID Generator Configuration
- * Provides distributed ID generation using Snowflake algorithm
+ * Uses Hutool's Snowflake implementation for distributed unique ID generation
  */
 @Configuration
 public class SnowflakeConfig {
 
     /**
-     * Configure Snowflake ID generator
-     * @return SnowflakeIdGenerator instance
+     * Configure Snowflake ID generator using Hutool
+     * @return Snowflake instance with workerId=1 and datacenterId=1
      */
     @Bean
-    public SnowflakeIdGenerator snowflakeIdGenerator() {
-        // Use worker ID 1 and datacenter ID 1 for this application
-        return new SnowflakeIdGenerator(1, 1);
+    public Snowflake snowflake() {
+        // Use worker ID 1 and datacenter ID 1 for this application instance
+        return IdUtil.getSnowflake(1, 1);
     }
 } 

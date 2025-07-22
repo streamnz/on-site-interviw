@@ -1,7 +1,7 @@
 package com.streamnz.service;
 
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
-import com.streamnz.config.SnowflakeIdGenerator;
 import com.streamnz.mapper.UserMapper;
 import com.streamnz.model.dto.UserCreateDTO;
 import com.streamnz.model.dto.UserQueryDTO;
@@ -16,6 +16,8 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import cn.hutool.core.lang.Snowflake;
+import cn.hutool.core.util.IdUtil;
 
 import java.time.LocalDateTime;
 import java.util.Arrays;
@@ -23,11 +25,12 @@ import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.*;
 
 /**
  * Unit tests for UserService
- * Tests business logic with mocked dependencies
+ * Tests the business logic layer with mocked dependencies
  */
 @ExtendWith(MockitoExtension.class)
 @DisplayName("UserService Unit Tests")
@@ -39,15 +42,15 @@ class UserServiceTest {
     @Mock
     private PasswordEncoder passwordEncoder;
 
-    @Mock
-    private SnowflakeIdGenerator snowflakeIdGenerator;
+    private Snowflake snowflake;
 
-    @InjectMocks
     private UserServiceImpl userService;
 
     @BeforeEach
     void setUp() {
-        // Setup will be done in individual tests as needed
+        // Create a real Snowflake instance for testing
+        snowflake = IdUtil.getSnowflake(1, 1);
+        userService = new UserServiceImpl(userMapper, passwordEncoder, snowflake);
     }
 
     @Test
@@ -60,10 +63,11 @@ class UserServiceTest {
         createDTO.setConfirmPassword("Password123");
         createDTO.setEmail("test@example.com");
         createDTO.setFullName("Test User");
+        createDTO.setEnabled(true);
 
-        User expectedUser = createTestUser(123456789L, "testuser", "test@example.com");
         when(userMapper.selectOne(any())).thenReturn(null); // No existing user
         when(userMapper.insert(any(User.class))).thenReturn(1);
+        when(passwordEncoder.encode("Password123")).thenReturn("encodedPassword");
 
         // When
         User result = userService.createUser(createDTO);
@@ -73,10 +77,14 @@ class UserServiceTest {
         assertEquals("testuser", result.getUsername());
         assertEquals("test@example.com", result.getEmail());
         assertEquals("Test User", result.getFullName());
-        assertTrue(result.getEnabled());
+        assertNotNull(result.getEnabled()); // Check enabled is not null
+        assertTrue(result.getEnabled()); // Check enabled is true
+        assertNotNull(result.getId()); // ID should be generated
+        assertEquals("encodedPassword", result.getPassword());
+        assertNotNull(result.getCreatedAt());
+        assertNotNull(result.getUpdatedAt());
 
         verify(passwordEncoder).encode("Password123");
-        verify(snowflakeIdGenerator).nextId();
         verify(userMapper).insert(any(User.class));
     }
 

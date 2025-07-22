@@ -1,9 +1,10 @@
 package com.streamnz.service.impl;
 
+import cn.hutool.core.bean.BeanUtil;
+import cn.hutool.core.lang.Snowflake;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
-import com.streamnz.config.SnowflakeIdGenerator;
 import com.streamnz.mapper.UserMapper;
 import com.streamnz.model.dto.UserCreateDTO;
 import com.streamnz.model.dto.UserQueryDTO;
@@ -19,6 +20,7 @@ import java.time.LocalDateTime;
 
 /**
  * Implementation of UserService interface
+ * Uses Hutool's Snowflake for ID generation and BeanUtil for object copying
  */
 @Service
 @RequiredArgsConstructor
@@ -26,9 +28,7 @@ public class UserServiceImpl implements UserService {
 
     private final UserMapper userMapper;
     private final PasswordEncoder passwordEncoder;
-
-    private final SnowflakeIdGenerator snowflakeIdGenerator;
-
+    private final Snowflake snowflake;
 
     @Override
     public Page<User> pageQueryWithConditions(Long current, Long size, UserQueryDTO queryDTO) {
@@ -55,8 +55,6 @@ public class UserServiceImpl implements UserService {
         return queryWrapper;
     }
 
-    // Query building logic is now inline for better performance and simplicity
-
     @Override
     public User findById(Long id) {
         return userMapper.selectById(id);
@@ -71,9 +69,6 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public User createUser(UserCreateDTO createDTO) {
-        // Set default values
-        createDTO.setDefaults();
-        
         // Check username uniqueness
         User existingUser = findByUsername(createDTO.getUsername());
         if (existingUser != null) {
@@ -90,15 +85,12 @@ public class UserServiceImpl implements UserService {
             }
         }
         
-        // Create user entity
-        User user = new User();
-        // Generate unique ID using Snowflake algorithm
-        user.setId(snowflakeIdGenerator.nextId());
-        user.setUsername(createDTO.getUsername());
+        // Use Hutool BeanUtil to copy properties from DTO to PO
+        User user = BeanUtil.copyProperties(createDTO, User.class);
+        // Generate unique ID using Hutool Snowflake
+        user.setId(snowflake.nextId());
+        // Encode password
         user.setPassword(passwordEncoder.encode(createDTO.getPassword()));
-        user.setEmail(createDTO.getEmail());
-        user.setFullName(createDTO.getFullName());
-        user.setEnabled(createDTO.getEnabled());
         user.setCreatedAt(LocalDateTime.now());
         user.setUpdatedAt(LocalDateTime.now());
         
@@ -108,9 +100,9 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public User createUser(User user) {
-        // Generate unique ID using Snowflake algorithm if not provided
+        // Generate unique ID using Hutool Snowflake if not provided
         if (user.getId() == null) {
-            user.setId(snowflakeIdGenerator.nextId());
+            user.setId(snowflake.nextId());
         }
         
         // Encode password before saving
@@ -121,8 +113,6 @@ public class UserServiceImpl implements UserService {
         if (user.getEnabled() == null) {
             user.setEnabled(true);
         }
-
-        // Role is now managed through RBAC system
 
         userMapper.insert(user);
         return user;
@@ -160,46 +150,18 @@ public class UserServiceImpl implements UserService {
             }
         }
         
-        // Update user information
-        User user = new User();
-        user.setId(updateDTO.getId());
+        // Use Hutool BeanUtil to copy non-null properties from DTO to existing User
+        BeanUtil.copyProperties(updateDTO, existingUser, "id", "createdAt");
         
-        // Only update non-empty fields
-        if (StringUtils.hasText(updateDTO.getUsername())) {
-            user.setUsername(updateDTO.getUsername());
-        } else {
-            user.setUsername(existingUser.getUsername());
-        }
-        
+        // Handle password encoding if provided
         if (StringUtils.hasText(updateDTO.getPassword())) {
-            user.setPassword(passwordEncoder.encode(updateDTO.getPassword()));
-        } else {
-            user.setPassword(existingUser.getPassword());
+            existingUser.setPassword(passwordEncoder.encode(updateDTO.getPassword()));
         }
         
-        if (StringUtils.hasText(updateDTO.getEmail())) {
-            user.setEmail(updateDTO.getEmail());
-        } else {
-            user.setEmail(existingUser.getEmail());
-        }
+        existingUser.setUpdatedAt(LocalDateTime.now());
         
-        if (StringUtils.hasText(updateDTO.getFullName())) {
-            user.setFullName(updateDTO.getFullName());
-        } else {
-            user.setFullName(existingUser.getFullName());
-        }
-        
-        if (updateDTO.getEnabled() != null) {
-            user.setEnabled(updateDTO.getEnabled());
-        } else {
-            user.setEnabled(existingUser.getEnabled());
-        }
-        
-        user.setCreatedAt(existingUser.getCreatedAt());
-        user.setUpdatedAt(LocalDateTime.now());
-        
-        userMapper.updateById(user);
-        return user;
+        userMapper.updateById(existingUser);
+        return existingUser;
     }
 
     @Override

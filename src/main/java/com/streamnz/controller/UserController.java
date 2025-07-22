@@ -1,5 +1,6 @@
 package com.streamnz.controller;
 
+import cn.hutool.core.bean.BeanUtil;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.streamnz.model.dto.UserCreateDTO;
 import com.streamnz.model.dto.UserQueryDTO;
@@ -10,96 +11,131 @@ import com.streamnz.model.vo.UserVO;
 import com.streamnz.service.UserService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 
+/**
+ * User Controller
+ * Handles user-related HTTP requests with proper DTO validation
+ * Uses Hutool BeanUtil for object conversion between PO and VO
+ */
 @RestController
-@RequiredArgsConstructor
 @RequestMapping("/api/users")
-@Tag(name = "User Management", description = "API endpoints for user management")
-@Validated
+@RequiredArgsConstructor
+@Tag(name = "User Management", description = "APIs for user CRUD operations with DTO validation")
 public class UserController {
 
     private final UserService userService;
 
-    @GetMapping
-    @Operation(summary = "Get users list", 
-               description = "Returns a simple list of users with basic pagination")
-    public ResponseEntity<PageVO<UserVO>> getUsers(
-            @Parameter(description = "Current page number, starting from 1")
-            @RequestParam(defaultValue = "1") Long current,
-            @Parameter(description = "Number of records per page") 
-            @RequestParam(defaultValue = "10") Long size) {
-        
-        Page<User> userPage = userService.pageQueryWithConditions(current, size, new UserQueryDTO());
-        PageVO<UserVO> pageVO = new PageVO<>(userPage, UserVO::new);
-        return ResponseEntity.ok(pageVO);
-    }
-
-    @PostMapping("/pageQuery")
-    @Operation(summary = "Search users with conditions and pagination", 
-               description = "Returns a paginated list of users based on search conditions including username, email, role, time range, etc.")
-    public ResponseEntity<PageVO<UserVO>> pageQuery(@Valid @RequestBody UserQueryDTO queryDTO,
-            @Parameter(description = "Current page number, starting from 1")
-            @RequestParam(defaultValue = "1") Long current,
-            @Parameter(description = "Number of records per page") 
-            @RequestParam(defaultValue = "10") Long size) {
-        
-        Page<User> userPage = userService.pageQueryWithConditions(current, size, queryDTO);
-        PageVO<UserVO> pageVO = new PageVO<>(userPage, UserVO::new);
-        return ResponseEntity.ok(pageVO);
-    }
-
-    @GetMapping("/{id}")
-    @Operation(summary = "Query user by ID", description = "Returns a user by their ID")
-    public ResponseEntity<UserVO> getUserById(@PathVariable Long id) {
-        User user = userService.findById(id);
-        if (user == null) {
-            return ResponseEntity.notFound().build();
-        }
-        return ResponseEntity.ok(new UserVO(user));
-    }
-
+    @Operation(summary = "Create a new user", description = "Create a new user with comprehensive validation")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "201", description = "User created successfully"),
+        @ApiResponse(responseCode = "400", description = "Invalid input data"),
+        @ApiResponse(responseCode = "409", description = "Username or email already exists")
+    })
     @PostMapping("/create")
-    @Operation(summary = "Create user with validation", 
-               description = "Creates a new user with comprehensive validation using UserCreateDTO")
     public ResponseEntity<UserVO> createUser(@Valid @RequestBody UserCreateDTO createDTO) {
         try {
-            User createdUser = userService.createUser(createDTO);
-            return ResponseEntity.status(HttpStatus.CREATED).body(new UserVO(createdUser));
+            User user = userService.createUser(createDTO);
+            // Use Hutool BeanUtil to convert PO to VO
+            UserVO userVO = BeanUtil.copyProperties(user, UserVO.class);
+            return new ResponseEntity<>(userVO, HttpStatus.CREATED);
         } catch (IllegalArgumentException e) {
-            return ResponseEntity.badRequest().build();
+            return new ResponseEntity<>(HttpStatus.CONFLICT);
         }
     }
 
+    @Operation(summary = "Update user information", description = "Update user with partial data validation")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "User updated successfully"),
+        @ApiResponse(responseCode = "400", description = "Invalid input data"),
+        @ApiResponse(responseCode = "404", description = "User not found"),
+        @ApiResponse(responseCode = "409", description = "Username or email already exists")
+    })
     @PutMapping("/update")
-    @Operation(summary = "Update user with validation", 
-               description = "Updates an existing user with comprehensive validation using UserUpdateDTO")
     public ResponseEntity<UserVO> updateUser(@Valid @RequestBody UserUpdateDTO updateDTO) {
         try {
-            User updatedUser = userService.updateUser(updateDTO);
-            if (updatedUser == null) {
-                return ResponseEntity.notFound().build();
+            User user = userService.updateUser(updateDTO);
+            if (user == null) {
+                return new ResponseEntity<>(HttpStatus.NOT_FOUND);
             }
-            return ResponseEntity.ok(new UserVO(updatedUser));
+            // Use Hutool BeanUtil to convert PO to VO
+            UserVO userVO = BeanUtil.copyProperties(user, UserVO.class);
+            return ResponseEntity.ok(userVO);
         } catch (IllegalArgumentException e) {
-            return ResponseEntity.badRequest().build();
+            return new ResponseEntity<>(HttpStatus.CONFLICT);
         }
     }
 
+    @Operation(summary = "Get user by ID", description = "Retrieve user information by user ID")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "User found"),
+        @ApiResponse(responseCode = "404", description = "User not found")
+    })
+    @GetMapping("/{id}")
+    public ResponseEntity<UserVO> getUserById(
+            @Parameter(description = "User ID", required = true)
+            @PathVariable Long id) {
+        User user = userService.findById(id);
+        if (user == null) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+        // Use Hutool BeanUtil to convert PO to VO
+        UserVO userVO = BeanUtil.copyProperties(user, UserVO.class);
+        return ResponseEntity.ok(userVO);
+    }
+
+    @Operation(summary = "Delete user", description = "Delete a user by ID")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "User deleted successfully"),
+        @ApiResponse(responseCode = "404", description = "User not found")
+    })
     @DeleteMapping("/{id}")
-    @Operation(summary = "Delete user", description = "Deletes a user by their ID")
-    public ResponseEntity<Void> deleteUser(@PathVariable Long id) {
+    public ResponseEntity<Void> deleteUser(
+            @Parameter(description = "User ID", required = true)
+            @PathVariable Long id) {
         boolean deleted = userService.deleteUser(id);
         if (!deleted) {
-            return ResponseEntity.notFound().build();
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
-        return ResponseEntity.noContent().build();
+        return ResponseEntity.ok().build();
+    }
+
+    @Operation(summary = "Search users with pagination", description = "Search users with multiple criteria and pagination")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "Search completed successfully"),
+        @ApiResponse(responseCode = "400", description = "Invalid query parameters")
+    })
+    @PostMapping("/pageQuery")
+    public ResponseEntity<PageVO<UserVO>> pageQuery(
+            @Parameter(description = "Current page number (starting from 1)", example = "1")
+            @RequestParam(defaultValue = "1") Long current,
+            @Parameter(description = "Page size", example = "10")
+            @RequestParam(defaultValue = "10") Long size,
+            @Parameter(description = "Query conditions (optional)")
+            @RequestBody(required = false) UserQueryDTO queryDTO) {
+        
+        Page<User> userPage = userService.pageQueryWithConditions(current, size, queryDTO);
+        
+        // Use Hutool BeanUtil to convert list of PO to list of VO
+        List<UserVO> userVOList = BeanUtil.copyToList(userPage.getRecords(), UserVO.class);
+        
+        PageVO<UserVO> pageVO = new PageVO<>(
+                userVOList,
+                userPage.getTotal(),
+                userPage.getCurrent(),
+                userPage.getSize(),
+                userPage.getPages()
+        );
+        
+        return ResponseEntity.ok(pageVO);
     }
 }
