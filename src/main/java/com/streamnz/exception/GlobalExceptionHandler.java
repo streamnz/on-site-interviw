@@ -1,6 +1,6 @@
 package com.streamnz.exception;
 
-import com.streamnz.model.vo.ApiResponse;
+import com.streamnz.model.vo.ResponseVO;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -24,7 +24,7 @@ public class GlobalExceptionHandler {
      * Handle parameter validation exceptions
      */
     @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ResponseEntity<ApiResponse<Map<String, String>>> handleValidationExceptions(MethodArgumentNotValidException ex) {
+    public ResponseEntity<ResponseVO<Map<String, String>>> handleValidationExceptions(MethodArgumentNotValidException ex) {
         Map<String, String> errors = new HashMap<>();
         
         ex.getBindingResult().getAllErrors().forEach((error) -> {
@@ -34,14 +34,14 @@ public class GlobalExceptionHandler {
         });
         
         log.warn("Parameter validation failed: {}", errors);
-        return ResponseEntity.badRequest().body(ApiResponse.error(400, "Parameter validation failed", errors));
+        return ResponseEntity.badRequest().body(ResponseVO.error(400, "Parameter validation failed", errors));
     }
 
     /**
      * Handle constraint validation exceptions
      */
     @ExceptionHandler(jakarta.validation.ConstraintViolationException.class)
-    public ResponseEntity<ApiResponse<Map<String, String>>> handleConstraintViolationException(
+    public ResponseEntity<ResponseVO<Map<String, String>>> handleConstraintViolationException(
             jakarta.validation.ConstraintViolationException ex) {
         Map<String, String> errors = new HashMap<>();
         
@@ -52,26 +52,26 @@ public class GlobalExceptionHandler {
         });
         
         log.warn("Constraint validation failed: {}", errors);
-        return ResponseEntity.badRequest().body(ApiResponse.error(400, "Parameter validation failed", errors));
+        return ResponseEntity.badRequest().body(ResponseVO.error(400, "Parameter validation failed", errors));
     }
 
     /**
      * Handle access denied exceptions
      */
     @ExceptionHandler(AccessDeniedException.class)
-    public ResponseEntity<ApiResponse<Void>> handleAccessDeniedException(AccessDeniedException ex) {
+    public ResponseEntity<ResponseVO<Void>> handleAccessDeniedException(AccessDeniedException ex) {
         log.warn("Access denied: {}", ex.getMessage());
         return ResponseEntity.status(HttpStatus.FORBIDDEN)
-                .body(ApiResponse.error(403, "Access denied"));
+                .body(ResponseVO.error(403, "Access denied"));
     }
 
     /**
      * Handle generic exceptions
      */
     @ExceptionHandler(Exception.class)
-    public ResponseEntity<ApiResponse<Void>> handleGenericException(Exception ex) {
+    public ResponseEntity<ResponseVO<Void>> handleGenericException(Exception ex) {
         log.error("Internal server error", ex);
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                .body(ApiResponse.error(500, "Internal server error"));
+                .body(ResponseVO.error(500, "Internal server error"));
     }
 } 

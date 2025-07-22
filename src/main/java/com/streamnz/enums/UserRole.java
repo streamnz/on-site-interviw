@@ -5,7 +5,6 @@ package com.streamnz.enums;
  */
 public enum UserRole {
     ADMIN("ADMIN", "Administrator", "System administrator with full access"),
-    MANAGER("MANAGER", "Manager", "Manager with limited administrative access"),
     USER("USER", "Regular User", "Regular user with basic access");
 
     private final String code;

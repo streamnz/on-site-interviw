@@ -6,8 +6,8 @@ import com.streamnz.mapper.RoleMapper;
 import com.streamnz.mapper.UserMapper;
 import com.streamnz.mapper.UserRoleRelationMapper;
 import com.streamnz.model.dto.response.AuthResponse;
-import com.streamnz.model.dto.request.LoginRequest;
-import com.streamnz.model.dto.request.RegisterRequest;
+import com.streamnz.model.dto.request.LoginDTO;
+import com.streamnz.model.dto.request.RegisterDTO;
 import com.streamnz.model.entity.Role;
 import com.streamnz.model.entity.User;
 import com.streamnz.model.entity.UserRoleRelation;
@@ -22,9 +22,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
-import java.util.Arrays;
 import java.util.List;
-import java.util.stream.Collectors;
 
 /**
  * Authentication service implementation
@@ -43,20 +41,20 @@ public class AuthServiceImpl implements AuthService {
     private final SnowflakeIdGenerator snowflakeIdGenerator;
 
     @Override
-    public AuthResponse login(LoginRequest loginRequest) {
+    public AuthResponse login(LoginDTO loginDTO) {
         // Authenticate user
         Authentication authentication = authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(
-                        loginRequest.getUsername(),
-                        loginRequest.getPassword()
+                        loginDTO.getUsername(),
+                        loginDTO.getPassword()
                 )
         );
 
         // Generate JWT token
-        String token = jwtUtils.generateToken(loginRequest.getUsername());
+        String token = jwtUtils.generateToken(loginDTO.getUsername());
 
         // Get user information
-        User user = userMapper.selectByUsername(loginRequest.getUsername());
+        User user = userMapper.selectByUsername(loginDTO.getUsername());
         List<Role> roles = roleMapper.findRolesByUserId(user.getId());
         String[] roleNames = roles.stream().map(Role::getName).toArray(String[]::new);
 
@@ -75,25 +73,25 @@ public class AuthServiceImpl implements AuthService {
 
     @Override
     @Transactional
-    public AuthResponse register(RegisterRequest registerRequest) {
+    public AuthResponse register(RegisterDTO registerDTO) {
         // Check if username already exists
-        if (userMapper.selectByUsername(registerRequest.getUsername()) != null) {
+        if (userMapper.selectByUsername(registerDTO.getUsername()) != null) {
             throw new RuntimeException("Username already exists");
         }
 
         // Check if email already exists
-        if (registerRequest.getEmail() != null && 
-            userMapper.selectByEmail(registerRequest.getEmail()) != null) {
+        if (registerDTO.getEmail() != null &&
+            userMapper.selectByEmail(registerDTO.getEmail()) != null) {
             throw new RuntimeException("Email already exists");
         }
 
         // Create new user
         User user = new User();
         user.setId(snowflakeIdGenerator.nextId());
-        user.setUsername(registerRequest.getUsername());
-        user.setPassword(passwordEncoder.encode(registerRequest.getPassword()));
-        user.setEmail(registerRequest.getEmail());
-        user.setFullName(registerRequest.getFullName());
+        user.setUsername(registerDTO.getUsername());
+        user.setPassword(passwordEncoder.encode(registerDTO.getPassword()));
+        user.setEmail(registerDTO.getEmail());
+        user.setFullName(registerDTO.getFullName());
         user.setEnabled(true);
         user.setCreatedAt(LocalDateTime.now());
         user.setUpdatedAt(LocalDateTime.now());

@@ -1,6 +1,6 @@
 package com.streamnz.interceptor;
 
-import com.streamnz.model.vo.ApiResponse;
+import com.streamnz.model.vo.ResponseVO;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -72,8 +72,8 @@ public class AuthenticationInterceptor implements HandlerInterceptor {
         response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
         response.setContentType("application/json");
         
-        ApiResponse<String> apiResponse = ApiResponse.error(401, "Authentication required");
-        String jsonResponse = objectMapper.writeValueAsString(apiResponse);
+        ResponseVO<String> responseVO = ResponseVO.error(401, "Authentication required");
+        String jsonResponse = objectMapper.writeValueAsString(responseVO);
         
         response.getWriter().write(jsonResponse);
     }

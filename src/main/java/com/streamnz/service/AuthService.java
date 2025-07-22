@@ -1,8 +1,8 @@
 package com.streamnz.service;
 
 import com.streamnz.model.dto.response.AuthResponse;
-import com.streamnz.model.dto.request.LoginRequest;
-import com.streamnz.model.dto.request.RegisterRequest;
+import com.streamnz.model.dto.request.LoginDTO;
+import com.streamnz.model.dto.request.RegisterDTO;
 
 /**
  * Authentication service interface
@@ -12,12 +12,12 @@ public interface AuthService {
     /**
      * User login
      */
-    AuthResponse login(LoginRequest loginRequest);
+    AuthResponse login(LoginDTO loginDTO);
 
     /**
      * User registration
      */
-    AuthResponse register(RegisterRequest registerRequest);
+    AuthResponse register(RegisterDTO registerDTO);
 
     /**
      * User logout

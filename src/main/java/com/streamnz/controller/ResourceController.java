@@ -1,7 +1,7 @@
 package com.streamnz.controller;
 
 import com.streamnz.model.entity.Resource;
-import com.streamnz.model.vo.ApiResponse;
+import com.streamnz.model.vo.ResponseVO;
 import com.streamnz.model.vo.PermissionVO;
 import com.streamnz.model.vo.ResourceVO;
 import com.streamnz.service.RbacService;
@@ -26,7 +26,7 @@ import com.streamnz.mapper.UserMapper;
 @Slf4j
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api/resources")
+@RequestMapping("/admin/resources")
 public class ResourceController {
 
     private final RbacService rbacService;
@@ -39,13 +39,13 @@ public class ResourceController {
      */
     @GetMapping("/my")
     @PreAuthorize("isAuthenticated()")
-    public ResponseEntity<ApiResponse<List<ResourceVO>>> getMyResources() {
+    public ResponseEntity<ResponseVO<List<ResourceVO>>> getMyResources() {
         // Get current user ID from SecurityContext
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         Long userId = getUserIdFromAuthentication(authentication);
         
         if (userId == null) {
-            return ResponseEntity.badRequest().body(ApiResponse.error(400, "Unable to get user information"));
+            return ResponseEntity.badRequest().body(ResponseVO.error(400, "Unable to get user information"));
         }
 
         List<Resource> resources = rbacService.getUserResources(userId);
@@ -55,7 +55,7 @@ public class ResourceController {
         
         log.info("User {} retrieved resource permissions, total {} resources", userId, resources.size());
         
-        return ResponseEntity.ok(ApiResponse.success("User resource permissions retrieved successfully", resourceVOs));
+        return ResponseEntity.ok(ResponseVO.success("User resource permissions retrieved successfully", resourceVOs));
     }
 
     /**
@@ -64,7 +64,7 @@ public class ResourceController {
      */
     @GetMapping("/user/{userId}")
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<ApiResponse<List<ResourceVO>>> getUserResources(@PathVariable Long userId) {
+    public ResponseEntity<ResponseVO<List<ResourceVO>>> getUserResources(@PathVariable Long userId) {
         // Perform permission validation inside method
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         Long currentUserId = getUserIdFromAuthentication(auth);
@@ -82,7 +82,7 @@ public class ResourceController {
         
         log.info("Admin queried user {} resource permissions, total {} resources", userId, resources.size());
         
-        return ResponseEntity.ok(ApiResponse.success("User resource permissions retrieved successfully", resourceVOs));
+        return ResponseEntity.ok(ResponseVO.success("User resource permissions retrieved successfully", resourceVOs));
     }
 
     /**
@@ -91,14 +91,14 @@ public class ResourceController {
      */
     @GetMapping("/check")
     @PreAuthorize("isAuthenticated()")
-    public ResponseEntity<ApiResponse<PermissionVO>> checkMyPermission(
+    public ResponseEntity<ResponseVO<PermissionVO>> checkMyPermission(
             @RequestParam String method,
             @RequestParam String path) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         Long userId = getUserIdFromAuthentication(authentication);
         
         if (userId == null) {
-            return ResponseEntity.badRequest().body(ApiResponse.error(400, "Unable to get user information"));
+            return ResponseEntity.badRequest().body(ResponseVO.error(400, "Unable to get user information"));
         }
 
         boolean hasPermission = rbacService.hasPermission(userId, method, path);
@@ -107,7 +107,7 @@ public class ResourceController {
         log.info("User {} permission validation: method={}, path={}, hasPermission={}", 
                  userId, method, path, hasPermission);
         
-        return ResponseEntity.ok(ApiResponse.success("Permission check completed", permissionVO));
+        return ResponseEntity.ok(ResponseVO.success("Permission check completed", permissionVO));
     }
 
     /**
@@ -116,7 +116,7 @@ public class ResourceController {
      */
     @GetMapping("/check/{userId}")
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<ApiResponse<PermissionVO>> checkUserPermission(
+    public ResponseEntity<ResponseVO<PermissionVO>> checkUserPermission(
             @PathVariable Long userId,
             @RequestParam String method,
             @RequestParam String path) {
@@ -136,7 +136,7 @@ public class ResourceController {
         log.info("Admin permission validation: userId={}, method={}, path={}, hasPermission={}", 
                  userId, method, path, hasPermission);
         
-        return ResponseEntity.ok(ApiResponse.success("Permission check completed", permissionVO));
+        return ResponseEntity.ok(ResponseVO.success("Permission check completed", permissionVO));
     }
 
     /**
@@ -145,7 +145,7 @@ public class ResourceController {
      */
     @DeleteMapping("/cache/{userId}")
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<ApiResponse<Void>> clearUserPermissions(@PathVariable Long userId) {
+    public ResponseEntity<ResponseVO<Void>> clearUserPermissions(@PathVariable Long userId) {
         // Perform permission validation inside method
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         Long currentUserId = getUserIdFromAuthentication(auth);
@@ -159,7 +159,7 @@ public class ResourceController {
         rbacService.clearUserPermissions(userId);
         log.info("Cleared user permission cache: userId={}", userId);
         
-        return ResponseEntity.ok(ApiResponse.success("User permission cache cleared successfully", null));
+        return ResponseEntity.ok(ResponseVO.success("User permission cache cleared successfully", null));
     }
 
     /**
@@ -168,23 +168,23 @@ public class ResourceController {
      */
     @GetMapping("/users")
     @PreAuthorize("isAuthenticated()")
-    public ResponseEntity<ApiResponse<String>> getUsers() {
+    public ResponseEntity<ResponseVO<String>> getUsers() {
         // Permission check inside method
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         Long userId = getUserIdFromAuthentication(auth);
         
         if (userId == null) {
             log.warn("Unable to get user ID");
-            return ResponseEntity.status(403).body(ApiResponse.error(403, "Unable to get user information"));
+            return ResponseEntity.status(403).body(ResponseVO.error(403, "Unable to get user information"));
         }
         
         if (!rbacService.hasPermission(userId, "GET", "/api/resources/users")) {
             log.warn("User {} attempted to access user list interface, insufficient permissions", userId);
-            return ResponseEntity.status(403).body(ApiResponse.error(403, "Insufficient permissions"));
+            return ResponseEntity.status(403).body(ResponseVO.error(403, "Insufficient permissions"));
         }
         
         log.info("User {} accessed user list interface", userId);
-        return ResponseEntity.ok(ApiResponse.success("User list retrieved successfully", "User list data"));
+        return ResponseEntity.ok(ResponseVO.success("User list retrieved successfully", "User list data"));
     }
 
     /**
@@ -193,23 +193,23 @@ public class ResourceController {
      */
     @GetMapping("/admin-only")
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<ApiResponse<String>> adminOnly() {
+    public ResponseEntity<ResponseVO<String>> adminOnly() {
         // Permission check inside method
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         Long userId = getUserIdFromAuthentication(auth);
         
         if (userId == null) {
             log.warn("Unable to get user ID");
-            return ResponseEntity.status(403).body(ApiResponse.error(403, "Unable to get user information"));
+            return ResponseEntity.status(403).body(ResponseVO.error(403, "Unable to get user information"));
         }
         
         if (!rbacService.hasPermission(userId, "GET", "/api/resources/admin-only")) {
             log.warn("User {} attempted to access admin-only interface, insufficient permissions", userId);
-            return ResponseEntity.status(403).body(ApiResponse.error(403, "Insufficient permissions, admin required"));
+            return ResponseEntity.status(403).body(ResponseVO.error(403, "Insufficient permissions, admin required"));
         }
         
         log.info("Admin {} accessed admin-only interface", userId);
-        return ResponseEntity.ok(ApiResponse.success("Admin data retrieved successfully", "Admin-only data"));
+        return ResponseEntity.ok(ResponseVO.success("Admin data retrieved successfully", "Admin-only data"));
     }
 
     /**
@@ -218,29 +218,29 @@ public class ResourceController {
      */
     @PostMapping("/cache/clear")
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<ApiResponse<String>> clearAllCache() {
+    public ResponseEntity<ResponseVO<String>> clearAllCache() {
         // In-method permission check
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         Long userId = getUserIdFromAuthentication(auth);
         
         if (userId == null) {
             log.warn("Cannot get user ID");
-            return ResponseEntity.status(403).body(ApiResponse.error(403, "Unable to get user information"));
+            return ResponseEntity.status(403).body(ResponseVO.error(403, "Unable to get user information"));
         }
         
         if (!rbacService.hasPermission(userId, "POST", "/api/resources/cache/clear")) {
             log.warn("User {} tried to clear all permission cache, insufficient permissions", userId);
-            return ResponseEntity.status(403).body(ApiResponse.error(403, "Insufficient permissions, admin required"));
+            return ResponseEntity.status(403).body(ResponseVO.error(403, "Insufficient permissions, admin required"));
         }
         
         rbacService.clearAllCache();
         log.info("Admin {} cleared all permission cache", userId);
-        return ResponseEntity.ok(ApiResponse.success("All permission cache cleared successfully", "Cache cleared successfully"));
+        return ResponseEntity.ok(ResponseVO.success("All permission cache cleared successfully", "Cache cleared successfully"));
     }
 
     @PostMapping("/users")
     @PreAuthorize("isAuthenticated()")
-    public ResponseEntity<ApiResponse<String>> createUser(@RequestBody String userData) {
+    public ResponseEntity<ResponseVO<String>> createUser(@RequestBody String userData) {
         // Permission check inside method
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         Long userId = getUserIdFromAuthentication(auth);
@@ -251,12 +251,12 @@ public class ResourceController {
         }
         
         log.info("User {} created new user", userId);
-        return ResponseEntity.ok(ApiResponse.success("User created successfully", "User created successfully"));
+        return ResponseEntity.ok(ResponseVO.success("User created successfully", "User created successfully"));
     }
 
     @PutMapping("/users/{id}")
     @PreAuthorize("isAuthenticated()")
-    public ResponseEntity<ApiResponse<String>> updateUser(@PathVariable Long id, @RequestBody String userData) {
+    public ResponseEntity<ResponseVO<String>> updateUser(@PathVariable Long id, @RequestBody String userData) {
         // Permission check inside method
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         Long userId = getUserIdFromAuthentication(auth);
@@ -267,12 +267,12 @@ public class ResourceController {
         }
         
         log.info("User {} updated user information: id={}", userId, id);
-        return ResponseEntity.ok(ApiResponse.success("User updated successfully", "User updated successfully"));
+        return ResponseEntity.ok(ResponseVO.success("User updated successfully", "User updated successfully"));
     }
 
     @DeleteMapping("/users/{id}")
     @PreAuthorize("isAuthenticated()")
-    public ResponseEntity<ApiResponse<String>> deleteUser(@PathVariable Long id) {
+    public ResponseEntity<ResponseVO<String>> deleteUser(@PathVariable Long id) {
         // Permission check inside method
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         Long userId = getUserIdFromAuthentication(auth);
@@ -283,7 +283,7 @@ public class ResourceController {
         }
         
         log.info("User {} deleted user: id={}", userId, id);
-        return ResponseEntity.ok(ApiResponse.success("User deleted successfully", "User deleted successfully"));
+        return ResponseEntity.ok(ResponseVO.success("User deleted successfully", "User deleted successfully"));
     }
 
     /**

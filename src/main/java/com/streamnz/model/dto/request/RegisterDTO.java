@@ -11,7 +11,7 @@ import lombok.Data;
  */
 @Data
 @Schema(description = "Register request")
-public class RegisterRequest {
+public class RegisterDTO {
 
     @NotBlank(message = "Username cannot be empty")
     @Size(min = 3, max = 50, message = "Username length must be between 3 and 50 characters")

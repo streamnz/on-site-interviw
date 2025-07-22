@@ -1,6 +1,6 @@
 package com.streamnz.controller;
 
-import com.streamnz.model.vo.ApiResponse;
+import com.streamnz.model.vo.ResponseVO;
 import com.zaxxer.hikari.HikariDataSource;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -33,7 +33,7 @@ public class MonitorController {
      */
     @GetMapping("/database/pool")
     @Operation(summary = "Get database connection pool status", description = "Returns detailed status information of the current database connection pool")
-    public ResponseEntity<ApiResponse<Map<String, Object>>> getDatabasePoolStatus() {
+    public ResponseEntity<ResponseVO<Map<String, Object>>> getDatabasePoolStatus() {
         Map<String, Object> poolInfo = new HashMap<>();
         
         try {
@@ -68,16 +68,16 @@ public class MonitorController {
                 poolInfo.put("status", status);
                 
                 log.debug("Database connection pool status query successful: {}", poolInfo);
-                return ResponseEntity.ok(ApiResponse.success("Connection pool status retrieved successfully", poolInfo));
+                return ResponseEntity.ok(ResponseVO.success("Connection pool status retrieved successfully", poolInfo));
             } else {
                 poolInfo.put("type", "Non-HikariCP DataSource");
                 poolInfo.put("className", dataSource.getClass().getSimpleName());
-                return ResponseEntity.ok(ApiResponse.success("DataSource information retrieved successfully", poolInfo));
+                return ResponseEntity.ok(ResponseVO.success("DataSource information retrieved successfully", poolInfo));
             }
         } catch (Exception e) {
             log.error("Failed to get database connection pool status", e);
             poolInfo.put("error", e.getMessage());
-            return ResponseEntity.ok(ApiResponse.error(500, "Failed to get connection pool status", poolInfo));
+            return ResponseEntity.ok(ResponseVO.error(500, "Failed to get connection pool status", poolInfo));
         }
     }
 
@@ -86,7 +86,7 @@ public class MonitorController {
      */
     @GetMapping("/health")
     @Operation(summary = "Get system health status", description = "Returns overall system health status")
-    public ResponseEntity<ApiResponse<Map<String, Object>>> getSystemHealth() {
+    public ResponseEntity<ResponseVO<Map<String, Object>>> getSystemHealth() {
         Map<String, Object> healthInfo = new HashMap<>();
         
         try {
@@ -114,12 +114,12 @@ public class MonitorController {
             healthInfo.put("status", "UP");
             healthInfo.put("timestamp", System.currentTimeMillis());
             
-            return ResponseEntity.ok(ApiResponse.success("System health status retrieved successfully", healthInfo));
+            return ResponseEntity.ok(ResponseVO.success("System health status retrieved successfully", healthInfo));
         } catch (Exception e) {
             log.error("Failed to get system health status", e);
             healthInfo.put("status", "DOWN");
             healthInfo.put("error", e.getMessage());
-            return ResponseEntity.ok(ApiResponse.error(500, "Failed to get system health status", healthInfo));
+            return ResponseEntity.ok(ResponseVO.error(500, "Failed to get system health status", healthInfo));
         }
     }
 } 

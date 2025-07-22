@@ -9,7 +9,7 @@ import lombok.Data;
  */
 @Data
 @Schema(description = "Login request")
-public class LoginRequest {
+public class LoginDTO {
 
     @NotBlank(message = "Username cannot be empty")
     @Schema(description = "Username", example = "admin")
