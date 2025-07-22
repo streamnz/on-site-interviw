@@ -45,20 +45,27 @@ public class UserVO {
     private LocalDateTime updatedAt;
 
     /**
-     * Construct UserVO from User entity
+     * Construct UserVO from User entity and roles
      * @param user User entity object
+     * @param roles 用户角色数组
      */
-    public UserVO(User user) {
+    public UserVO(User user, String[] roles) {
         if (user != null) {
             this.id = user.getId();
             this.username = user.getUsername();
             this.email = user.getEmail();
             this.fullName = user.getFullName();
-            // Roles are now managed through RBAC system
-            this.roles = new String[]{"USER"}; // Default role
+            this.roles = roles;
             this.enabled = user.getEnabled();
             this.createdAt = user.getCreatedAt();
             this.updatedAt = user.getUpdatedAt();
         }
+    }
+
+    /**
+     * 兼容旧用法，默认角色为USER（建议废弃）
+     */
+    public UserVO(User user) {
+        this(user, new String[]{"USER"});
     }
 } 

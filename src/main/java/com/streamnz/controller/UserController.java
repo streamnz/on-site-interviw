@@ -9,6 +9,10 @@ import com.streamnz.model.vo.ApiResponse;
 import com.streamnz.model.vo.PageVO;
 import com.streamnz.model.vo.UserVO;
 import com.streamnz.service.UserService;
+import com.streamnz.mapper.RoleMapper;
+import com.streamnz.model.entity.Role;
+import java.util.List;
+import java.util.stream.Collectors;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -28,6 +32,7 @@ import org.springframework.web.bind.annotation.*;
 public class UserController {
 
     private final UserService userService;
+    private final RoleMapper roleMapper;
 
     @GetMapping
     @Operation(summary = "Query users with pagination", 
@@ -48,7 +53,12 @@ public class UserController {
         queryDTO.setEmail(email);
         
         Page<User> userPage = userService.pageQueryWithConditions(current, size, queryDTO);
-        PageVO<UserVO> pageVO = new PageVO<>(userPage, UserVO::new);
+        // 构造UserVO时查出角色
+        PageVO<UserVO> pageVO = new PageVO<>(userPage, user -> {
+            List<Role> roles = roleMapper.findRolesByUserId(user.getId());
+            String[] roleArr = roles.stream().map(Role::getName).toArray(String[]::new);
+            return new UserVO(user, roleArr);
+        });
         return ResponseEntity.ok(ApiResponse.success("Users queried successfully", pageVO));
     }
 
@@ -73,7 +83,9 @@ public class UserController {
         if (user == null) {
             return ResponseEntity.notFound().build();
         }
-        return ResponseEntity.ok(ApiResponse.success("User information retrieved successfully", new UserVO(user)));
+        List<Role> roles = roleMapper.findRolesByUserId(user.getId());
+        String[] roleArr = roles.stream().map(Role::getName).toArray(String[]::new);
+        return ResponseEntity.ok(ApiResponse.success("User information retrieved successfully", new UserVO(user, roleArr)));
     }
 
     @PostMapping("/create")
@@ -81,7 +93,9 @@ public class UserController {
                description = "Creates a new user with comprehensive validation using UserCreateDTO")
     public ResponseEntity<ApiResponse<UserVO>> createUser(@Valid @RequestBody UserCreateDTO createDTO) {
         User createdUser = userService.createUser(createDTO);
-        return ResponseEntity.status(HttpStatus.CREATED).body(ApiResponse.success("User created successfully", new UserVO(createdUser)));
+        List<Role> roles = roleMapper.findRolesByUserId(createdUser.getId());
+        String[] roleArr = roles.stream().map(Role::getName).toArray(String[]::new);
+        return ResponseEntity.status(HttpStatus.CREATED).body(ApiResponse.success("User created successfully", new UserVO(createdUser, roleArr)));
     }
 
     @PutMapping("/update")
@@ -92,7 +106,9 @@ public class UserController {
         if (updatedUser == null) {
             return ResponseEntity.notFound().build();
         }
-        return ResponseEntity.ok(ApiResponse.success("User updated successfully", new UserVO(updatedUser)));
+        List<Role> roles = roleMapper.findRolesByUserId(updatedUser.getId());
+        String[] roleArr = roles.stream().map(Role::getName).toArray(String[]::new);
+        return ResponseEntity.ok(ApiResponse.success("User updated successfully", new UserVO(updatedUser, roleArr)));
     }
 
     @DeleteMapping("/{id}")

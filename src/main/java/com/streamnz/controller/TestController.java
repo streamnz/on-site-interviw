@@ -25,6 +25,12 @@ public class TestController {
 
     private final SnowflakeIdGenerator snowflakeIdGenerator;
 
+    @GetMapping("/hello")
+    @Operation(summary = "Hello World", description = "Simple hello world endpoint")
+    public ApiResponse<String> hello() {
+        return ApiResponse.success("Hello World!", "Hello from User Management System API");
+    }
+
     @GetMapping("/health")
     @Operation(summary = "Health check", description = "Simple health check endpoint")
     public ApiResponse<String> health() {

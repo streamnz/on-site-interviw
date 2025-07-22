@@ -1,181 +1,202 @@
-# User Management System
+# 用户管理系统 (User Management System)
 
-A comprehensive Spring Boot application for user management with DTO validation and RESTful API endpoints.
+基于 Spring Boot 3.2.5 的现代化用户管理系统，支持 JWT 认证、RBAC 权限控制和完整的用户管理功能。
 
-## Features
+## 🚀 功能特性
 
-- **User CRUD Operations**: Create, read, update, and delete users
-- **DTO Validation**: Comprehensive validation using Jakarta Validation
-- **RESTful API**: Clean and consistent API design
-- **Pagination**: Efficient pagination with MyBatis-Plus
-- **Conditional Queries**: Flexible search with multiple criteria
-- **Security**: Password encoding with BCrypt
-- **Documentation**: Swagger/OpenAPI documentation
+- **🔐 JWT 认证**: 基于 JWT Token 的用户认证机制
+- **👥 用户管理**: 完整的用户 CRUD 操作和分页查询
+- **🎭 角色权限**: 基于角色的访问控制 (RBAC) 系统
+- **📊 分页查询**: 支持条件查询和分页显示
+- **📈 性能监控**: 请求性能追踪和数据库连接池监控
+- **🛡️ 安全防护**: 输入验证、异常处理和安全过滤器
+- **📚 API 文档**: 完整的 Swagger/OpenAPI 3.0 文档
+- **🔧 开发工具**: 雪花 ID 生成器、日期格式化等实用工具
 
-## Technology Stack
+## 🛠️ 技术栈
 
-- **Spring Boot 3.2.5**
-- **Java 21**
-- **MyBatis-Plus**: ORM framework
-- **SQLite**: Database
-- **Spring Security**: Security framework
-- **Jakarta Validation**: Data validation
-- **Lombok**: Boilerplate code reduction
-- **Swagger/OpenAPI**: API documentation
+| 技术                | 版本   | 说明     |
+| ------------------- | ------ | -------- |
+| **Spring Boot**     | 3.2.5  | 核心框架 |
+| **Spring Security** | 6.2.4  | 安全框架 |
+| **MyBatis-Plus**    | 3.5.6  | ORM 框架 |
+| **SQLite**          | 3.43.2 | 数据库   |
+| **HikariCP**        | 5.0.1  | 连接池   |
+| **JWT**             | 0.12.3 | JWT 支持 |
+| **OpenAPI**         | 2.3.0  | API 文档 |
+| **Java**            | 21     | 运行环境 |
 
-## Project Structure
+## 📋 快速开始
 
-```
-src/main/java/com/streamnz/
-├── config/           # Configuration classes
-├── controller/       # REST controllers
-├── entity/          # Entity classes
-├── mapper/          # MyBatis mappers
-├── model/
-│   ├── dto/         # Data Transfer Objects
-│   └── vo/          # View Objects
-├── query/           # Query builders
-├── service/         # Business logic
-└── exception/       # Exception handlers
-```
+### 环境要求
 
-## API Endpoints
-
-### User Management
-
-- `POST /api/users/create` - Create user with validation
-- `PUT /api/users/update` - Update user with validation
-- `GET /api/users/{id}` - Get user by ID
-- `DELETE /api/users/{id}` - Delete user
-- `POST /api/users/pageQuery` - Search users with pagination
-
-### Legacy API (for backward compatibility)
-
-- `POST /api/test/create` - Legacy user creation
-- `PUT /api/test/{id}` - Legacy user update
-- `GET /api/test/{id}` - Legacy user query
-- `DELETE /api/test/{id}` - Legacy user deletion
-
-## DTO Validation
-
-### UserCreateDTO
-
-- Username: 3-50 characters, alphanumeric + underscore
-- Password: 6-100 characters, lowercase + uppercase + number
-- Email: Valid format, whitelisted domains
-- Full name: 2-100 characters, letters + spaces
-- Role: ADMIN/MANAGER/USER only
-- Custom validations: Password confirmation, sensitive word filtering
-
-### UserUpdateDTO
-
-- ID: Required, must be > 0
-- All other fields optional
-- At least one field must be provided for update
-- Password confirmation required when password is updated
-
-## Getting Started
-
-### Prerequisites
-
-- Java 21
+- Java 21+
 - Maven 3.6+
 
-### Running the Application
+### 启动应用
 
 ```bash
-# Clone the repository
+# 克隆项目
 git clone <repository-url>
-
-# Navigate to project directory
 cd on-site-interview
 
-# Build the project
+# 编译项目
 mvn clean compile
 
-# Run the application
+# 启动应用
 mvn spring-boot:run
 ```
 
-### Testing
+应用将在 `http://localhost:8080` 启动。
+
+### 默认用户账号
+
+| 用户名  | 密码    | 角色  | 说明       |
+| ------- | ------- | ----- | ---------- |
+| `admin` | `admin` | ADMIN | 系统管理员 |
+| `user1` | `admin` | USER  | 普通用户   |
+| `user2` | `admin` | USER  | 普通用户   |
+| `guest` | `admin` | GUEST | 访客用户   |
+
+## 🧪 API 测试
+
+### 1. 健康检查
 
 ```bash
-# Run all tests
-mvn test
-
-# Run specific test class
-mvn test -Dtest=UserControllerTest
-
-# Run API test script
-./src/test/scripts/test-user-controller-api.sh
+curl http://localhost:8080/actuator/health
 ```
 
-### API Documentation
+### 2. 测试端点
 
-Access Swagger UI at: http://localhost:8080/swagger-ui.html
+```bash
+# Hello World 测试
+curl http://localhost:8080/api/test/hello
 
-## Database
+# 服务健康检查
+curl http://localhost:8080/api/test/health
 
-The application uses SQLite with the following schema:
-
-```sql
-CREATE TABLE users (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    username VARCHAR(50) NOT NULL UNIQUE,
-    password VARCHAR(255) NOT NULL,
-    email VARCHAR(100) NOT NULL UNIQUE,
-    full_name VARCHAR(100) NOT NULL,
-    role VARCHAR(20) NOT NULL DEFAULT 'USER',
-    enabled INTEGER NOT NULL DEFAULT 1,
-    created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
-);
+# 雪花ID生成测试
+curl http://localhost:8080/api/test/snowflake/generate
 ```
 
-## Configuration
+### 3. 用户认证
 
-Key configuration in `application.yml`:
+```bash
+# 用户登录
+curl -X POST http://localhost:8080/api/auth/login \
+  -H "Content-Type: application/json" \
+  -d '{"username":"admin","password":"admin"}'
 
-- Server port: 8080
-- Database: SQLite (identifier.sqlite)
-- Logging: DEBUG level for application packages
-- Swagger: Available at /swagger-ui.html
+# 用户注册
+curl -X POST http://localhost:8080/api/auth/register \
+  -H "Content-Type: application/json" \
+  -d '{
+    "username":"newuser",
+    "password":"password123",
+    "email":"newuser@example.com",
+    "fullName":"New User"
+  }'
+```
 
-## Development
+### 4. 用户管理 (需要认证)
 
-### Adding New Features
+```bash
+# 获取JWT Token后，在请求头中添加：
+# Authorization: Bearer <your-jwt-token>
 
-1. Create DTOs for data validation
-2. Implement service layer business logic
-3. Add controller endpoints
-4. Write comprehensive tests
-5. Update documentation
+# 获取用户列表
+curl -H "Authorization: Bearer <token>" \
+  http://localhost:8080/api/users
 
-### Code Style
+# 创建用户
+curl -X POST http://localhost:8080/api/users \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer <token>" \
+  -d '{
+    "username":"testuser",
+    "password":"password123",
+    "email":"test@example.com",
+    "fullName":"Test User"
+  }'
+```
 
-- Use English for all comments, messages, and documentation
-- Follow Java naming conventions
-- Use Lombok for boilerplate reduction
-- Implement proper exception handling
+## 📖 API 文档
 
-## Testing
+启动应用后，访问以下地址查看完整的 API 文档：
 
-The project includes comprehensive test scripts:
+- **Swagger UI**: http://localhost:8080/swagger-ui.html
+- **OpenAPI JSON**: http://localhost:8080/v3/api-docs
 
-- DTO validation testing
-- Conditional query testing
-- API endpoint testing
-- Error handling validation
+## 🏗️ 项目结构
 
-## Future Enhancements
+```
+src/main/java/com/streamnz/
+├── Main.java                    # 应用入口
+├── annotation/                  # 自定义注解
+├── config/                      # 配置类
+│   ├── security/               # 安全配置
+│   ├── database/               # 数据库配置
+│   ├── SwaggerConfig.java      # API文档配置
+│   └── JacksonConfig.java      # JSON配置
+├── controller/                  # REST控制器
+├── service/                     # 业务逻辑层
+├── mapper/                      # 数据访问层
+├── model/                       # 数据模型
+│   ├── entity/                 # 实体类
+│   ├── dto/                    # 数据传输对象
+│   ├── vo/                     # 视图对象
+│   └── security/               # 安全相关模型
+├── filter/                      # 过滤器
+├── interceptor/                 # 拦截器
+├── exception/                   # 异常处理
+├── util/                        # 工具类
+├── enums/                       # 枚举类
+└── constant/                    # 常量类
+```
 
-- JWT Authentication
-- Role-based Access Control
-- Password Reset functionality
-- Email Verification
-- Audit Logging
-- Rate Limiting
+## 🔧 配置说明
 
-## License
+### 数据库配置
 
-This project is for demonstration purposes.
+应用使用 SQLite 数据库，数据库文件位于 `sql-lite/identifier.sqlite`。
+
+### JWT 配置
+
+JWT 相关配置在 `application.yml` 中：
+
+```yaml
+jwt:
+  secret: your-secret-key-here-make-it-long-enough-for-security-at-least-256-bits
+  expiration: 86400000 # 24小时 (毫秒)
+```
+
+### 连接池监控
+
+访问 `http://localhost:8080/actuator/hikaricp` 查看连接池状态。
+
+## 🚨 已知问题
+
+1. **认证问题**: 当前登录接口存在 500 错误，可能是数据库初始化或认证配置问题
+2. **用户密码**: 所有默认用户密码都是 `admin`，建议生产环境修改
+
+## 🔄 开发状态
+
+- ✅ 基础框架搭建完成
+- ✅ 数据库模型设计完成
+- ✅ API 接口定义完成
+- ✅ Swagger 文档配置完成
+- ⚠️ 用户认证功能需要调试
+- ⚠️ 权限控制需要完善测试
+- ⚠️ 单元测试需要补充
+
+## 📞 支持
+
+如有问题，请查看：
+
+1. 应用日志输出
+2. Swagger API 文档
+3. 数据库初始化脚本
+
+---
+
+**注意**: 这是一个开发版本，不建议直接用于生产环境。

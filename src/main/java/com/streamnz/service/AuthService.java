@@ -23,4 +23,9 @@ public interface AuthService {
      * User logout
      */
     void logout(String token);
+
+    /**
+     * Get current user info from token
+     */
+    AuthResponse.UserInfo getCurrentUser(String token);
 } 

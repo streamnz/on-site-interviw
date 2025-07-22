@@ -69,11 +69,13 @@ public class AuthController {
     @GetMapping("/me")
     @Operation(summary = "Get Current User Info", description = "Get current logged in user information")
     public ResponseEntity<ApiResponse<AuthResponse.UserInfo>> getCurrentUser(HttpServletRequest request) {
-        // This would typically extract user info from the JWT token
-        // For now, we'll return a simple response
-        AuthResponse.UserInfo userInfo = AuthResponse.UserInfo.builder()
-                .username("current_user")
-                .build();
+        String authHeader = request.getHeader("Authorization");
+        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+            return ResponseEntity.ok(ApiResponse.error("No valid token provided"));
+        }
+        
+        String token = authHeader.substring(7);
+        AuthResponse.UserInfo userInfo = authService.getCurrentUser(token);
         return ResponseEntity.ok(ApiResponse.success("Current user information retrieved successfully", userInfo));
     }
 } 

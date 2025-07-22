@@ -2,10 +2,10 @@ package com.streamnz.controller;
 
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.streamnz.model.dto.UserCreateDTO;
-import com.streamnz.model.dto.UserQueryDTO;
-import com.streamnz.model.dto.UserUpdateDTO;
-import com.streamnz.model.po.User;
+import com.streamnz.model.dto.request.UserCreateDTO;
+import com.streamnz.model.dto.request.UserQueryDTO;
+import com.streamnz.model.dto.request.UserUpdateDTO;
+import com.streamnz.model.entity.User;
 import com.streamnz.service.UserService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;

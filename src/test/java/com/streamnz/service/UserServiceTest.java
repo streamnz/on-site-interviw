@@ -1,12 +1,12 @@
 package com.streamnz.service;
 
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
-import com.streamnz.config.SnowflakeIdGenerator;
+import com.streamnz.util.SnowflakeIdGenerator;
 import com.streamnz.mapper.UserMapper;
-import com.streamnz.model.dto.UserCreateDTO;
-import com.streamnz.model.dto.UserQueryDTO;
-import com.streamnz.model.dto.UserUpdateDTO;
-import com.streamnz.model.po.User;
+import com.streamnz.model.dto.request.UserCreateDTO;
+import com.streamnz.model.dto.request.UserQueryDTO;
+import com.streamnz.model.dto.request.UserUpdateDTO;
+import com.streamnz.model.entity.User;
 import com.streamnz.service.impl.UserServiceImpl;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
