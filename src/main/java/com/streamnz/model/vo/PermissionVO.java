@@ -5,35 +5,37 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalDateTime;
+
 /**
  * Permission check response object
  */
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-@Schema(description = "权限检查响应对象")
+@Schema(description = "Permission check response object")
 public class PermissionVO {
 
-    @Schema(description = "用户ID")
+    @Schema(description = "User ID")
     private Long userId;
 
-    @Schema(description = "HTTP方法")
+    @Schema(description = "HTTP method")
     private String method;
 
-    @Schema(description = "请求路径")
+    @Schema(description = "Request path")
     private String path;
 
-    @Schema(description = "是否有权限")
+    @Schema(description = "Has permission")
     private Boolean hasPermission;
 
-    @Schema(description = "权限检查时间戳")
-    private Long checkTime;
+    @Schema(description = "Permission check timestamp")
+    private LocalDateTime checkTime;
 
     public PermissionVO(Long userId, String method, String path, Boolean hasPermission) {
         this.userId = userId;
         this.method = method;
         this.path = path;
         this.hasPermission = hasPermission;
-        this.checkTime = System.currentTimeMillis();
+        this.checkTime = LocalDateTime.now();
     }
 } 

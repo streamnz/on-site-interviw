@@ -21,38 +21,29 @@ import java.util.Date;
 public class DateFormatTestController {
 
     @GetMapping("/demo")
-    @Operation(summary = "Demonstrate custom date formatting", 
-               description = "Shows different date formatting patterns using custom annotations")
-    public ApiResponse<DateDemoVO> demonstrateDateFormatting() {
-        DateDemoVO demo = new DateDemoVO();
-        demo.setDefaultFormat(LocalDateTime.now());
-        demo.setCustomFormat(LocalDateTime.now());
-        demo.setShortFormat(LocalDateTime.now());
-        demo.setLongFormat(LocalDateTime.now());
-        demo.setDateObject(new Date());
-        
-        return ApiResponse.success("Date formatting demonstration", demo);
+    @Operation(summary = "Date Format Demo", description = "Demonstrate custom date formatting")
+    public ApiResponse<DateDemoResponse> dateFormatDemo() {
+        LocalDateTime now = LocalDateTime.now();
+        return ApiResponse.success("Date format demo", new DateDemoResponse(now));
     }
 
     /**
-     * Demo VO with different date formatting annotations
+     * Response class for date format demo
      */
-    @Data
-    public static class DateDemoVO {
-        
-        @DateFormat // Uses default pattern: "yyyy-MM-dd HH:mm:ss"
-        private LocalDateTime defaultFormat;
-        
-        @DateFormat(pattern = "yyyy年MM月dd日 HH:mm:ss")
-        private LocalDateTime customFormat;
-        
-        @DateFormat(pattern = "yyyy-MM-dd")
-        private LocalDateTime shortFormat;
-        
-        @DateFormat(pattern = "yyyy-MM-dd HH:mm:ss.SSS", timezone = "UTC")
-        private LocalDateTime longFormat;
-        
-        @DateFormat(pattern = "yyyy/MM/dd HH:mm:ss")
-        private Date dateObject;
+    public static class DateDemoResponse {
+        @DateFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+        private LocalDateTime timestamp;
+
+        public DateDemoResponse(LocalDateTime timestamp) {
+            this.timestamp = timestamp;
+        }
+
+        public LocalDateTime getTimestamp() {
+            return timestamp;
+        }
+
+        public void setTimestamp(LocalDateTime timestamp) {
+            this.timestamp = timestamp;
+        }
     }
 } 

@@ -6,63 +6,64 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 /**
- * 通用API响应对象
+ * Generic API response object
+ * Provides standardized response format for all API endpoints
  */
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-@Schema(description = "通用API响应格式")
+@Schema(description = "Generic API response format")
 public class ApiResponse<T> {
 
-    @Schema(description = "响应状态码", example = "200")
-    private Integer code;
+    @Schema(description = "Response status code", example = "200")
+    private String code;
 
-    @Schema(description = "响应消息", example = "操作成功")
+    @Schema(description = "Response message", example = "Operation successful")
     private String message;
 
-    @Schema(description = "响应数据")
+    @Schema(description = "Response data")
     private T data;
 
-    @Schema(description = "时间戳", example = "1640995200000")
+    @Schema(description = "Timestamp", example = "1640995200000")
     private Long timestamp;
 
     /**
-     * 成功响应（无数据）
+     * Success response (no data)
      */
     public static <T> ApiResponse<T> success() {
-        return new ApiResponse<>(200, "操作成功", null, System.currentTimeMillis());
+        return new ApiResponse<>(200, "Operation successful", null, System.currentTimeMillis());
     }
 
     /**
-     * 成功响应（有数据）
+     * Success response (with data)
      */
     public static <T> ApiResponse<T> success(T data) {
-        return new ApiResponse<>(200, "操作成功", data, System.currentTimeMillis());
+        return new ApiResponse<>(200, "Operation successful", data, System.currentTimeMillis());
     }
 
     /**
-     * 成功响应（自定义消息）
+     * Success response (custom message)
      */
     public static <T> ApiResponse<T> success(String message, T data) {
         return new ApiResponse<>(200, message, data, System.currentTimeMillis());
     }
 
     /**
-     * 失败响应
+     * Error response
      */
     public static <T> ApiResponse<T> error(Integer code, String message) {
         return new ApiResponse<>(code, message, null, System.currentTimeMillis());
     }
 
     /**
-     * 失败响应（带数据）
+     * Error response (with data)
      */
     public static <T> ApiResponse<T> error(Integer code, String message, T data) {
         return new ApiResponse<>(code, message, data, System.currentTimeMillis());
     }
 
     /**
-     * 失败响应（默认500错误）
+     * Error response (default 500 error)
      */
     public static <T> ApiResponse<T> error(String message) {
         return new ApiResponse<>(500, message, null, System.currentTimeMillis());

@@ -9,6 +9,8 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import io.swagger.v3.oas.annotations.Parameter;
+import org.springframework.web.bind.annotation.RequestParam;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -32,9 +34,9 @@ public class TestController {
     }
 
     @GetMapping("/health")
-    @Operation(summary = "Health check", description = "Simple health check endpoint")
+    @Operation(summary = "Service Health Check", description = "Check if the service is running properly")
     public ApiResponse<String> health() {
-        return ApiResponse.success("服务健康", "OK");
+        return ApiResponse.success("Service Health", "OK");
     }
 
     @GetMapping("/snowflake/generate")
@@ -42,35 +44,34 @@ public class TestController {
     public ApiResponse<SnowflakeResponse> generateSnowflakeId() {
         long id = snowflakeIdGenerator.nextId();
         SnowflakeIdGenerator.IdComponents components = snowflakeIdGenerator.parseId(id);
-        
-        return ApiResponse.success("雪花ID生成成功", new SnowflakeResponse(id, components));
+        return ApiResponse.success("Snowflake ID generated successfully", new SnowflakeResponse(id, components));
     }
 
-    @GetMapping("/snowflake/generate/{count}")
-    @Operation(summary = "Generate multiple Snowflake IDs", 
-               description = "Generate multiple Snowflake IDs for testing")
-    public ApiResponse<List<SnowflakeResponse>> generateMultipleSnowflakeIds(@PathVariable int count) {
+    @GetMapping("/snowflake/generate/batch")
+    @Operation(summary = "Generate Batch Snowflake IDs", description = "Generate multiple Snowflake IDs")
+    public ApiResponse<List<SnowflakeResponse>> generateBatchSnowflakeIds(
+            @Parameter(description = "Number of IDs to generate", example = "5")
+            @RequestParam(defaultValue = "5") int count) {
         List<SnowflakeResponse> responses = new ArrayList<>();
-        
-        for (int i = 0; i < count && i < 100; i++) { // Limit to 100 for safety
+        for (int i = 0; i < count; i++) {
             long id = snowflakeIdGenerator.nextId();
             SnowflakeIdGenerator.IdComponents components = snowflakeIdGenerator.parseId(id);
             responses.add(new SnowflakeResponse(id, components));
         }
-        
-        return ApiResponse.success("批量雪花ID生成成功", responses);
+        return ApiResponse.success("Batch Snowflake IDs generated successfully", responses);
     }
 
     @GetMapping("/snowflake/parse/{id}")
-    @Operation(summary = "Parse Snowflake ID", 
-               description = "Parse a Snowflake ID to extract its components")
-    public ApiResponse<SnowflakeResponse> parseSnowflakeId(@PathVariable long id) {
+    @Operation(summary = "Parse Snowflake ID", description = "Parse a Snowflake ID into its components")
+    public ApiResponse<SnowflakeResponse> parseSnowflakeId(
+            @Parameter(description = "Snowflake ID to parse")
+            @PathVariable Long id) {
         SnowflakeIdGenerator.IdComponents components = snowflakeIdGenerator.parseId(id);
-        return ApiResponse.success("雪花ID解析成功", new SnowflakeResponse(id, components));
+        return ApiResponse.success("Snowflake ID parsed successfully", new SnowflakeResponse(id, components));
     }
 
     /**
-     * Response class for Snowflake ID operations
+     * Snowflake ID response wrapper
      */
     public static class SnowflakeResponse {
         private final long id;

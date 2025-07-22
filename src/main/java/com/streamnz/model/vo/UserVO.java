@@ -47,7 +47,7 @@ public class UserVO {
     /**
      * Construct UserVO from User entity and roles
      * @param user User entity object
-     * @param roles 用户角色数组
+     * @param roles User roles array
      */
     public UserVO(User user, String[] roles) {
         if (user != null) {
@@ -63,7 +63,7 @@ public class UserVO {
     }
 
     /**
-     * 兼容旧用法，默认角色为USER（建议废弃）
+     * Compatible with old usage, default role is USER (deprecated)
      */
     public UserVO(User user) {
         this(user, new String[]{"USER"});

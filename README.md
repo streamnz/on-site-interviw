@@ -1,93 +1,93 @@
-# 用户管理系统 (User Management System)
+# User Management System
 
-基于 Spring Boot 3.2.5 的现代化用户管理系统，支持 JWT 认证、RBAC 权限控制和完整的用户管理功能。
+A modern user management system based on Spring Boot 3.2.5, featuring JWT authentication, RBAC permission control, and comprehensive user management functionality.
 
-## 🚀 功能特性
+## 🚀 Features
 
-- **🔐 JWT 认证**: 基于 JWT Token 的用户认证机制
-- **👥 用户管理**: 完整的用户 CRUD 操作和分页查询
-- **🎭 角色权限**: 基于角色的访问控制 (RBAC) 系统
-- **📊 分页查询**: 支持条件查询和分页显示
-- **📈 性能监控**: 请求性能追踪和数据库连接池监控
-- **🛡️ 安全防护**: 输入验证、异常处理和安全过滤器
-- **📚 API 文档**: 完整的 Swagger/OpenAPI 3.0 文档
-- **🔧 开发工具**: 雪花 ID 生成器、日期格式化等实用工具
+- **🔐 JWT Authentication**: User authentication mechanism based on JWT tokens
+- **👥 User Management**: Complete user CRUD operations with pagination
+- **🎭 Role-based Access Control**: RBAC system for permission management
+- **📊 Pagination & Search**: Support for conditional queries and pagination
+- **📈 Performance Monitoring**: Request performance tracking and database connection pool monitoring
+- **🛡️ Security Protection**: Input validation, exception handling, and security filters
+- **📚 API Documentation**: Complete Swagger/OpenAPI 3.0 documentation
+- **🔧 Development Tools**: Snowflake ID generator, date formatting, and utility tools
 
-## 🛠️ 技术栈
+## 🛠️ Technology Stack
 
-| 技术                | 版本   | 说明     |
-| ------------------- | ------ | -------- |
-| **Spring Boot**     | 3.2.5  | 核心框架 |
-| **Spring Security** | 6.2.4  | 安全框架 |
-| **MyBatis-Plus**    | 3.5.6  | ORM 框架 |
-| **SQLite**          | 3.43.2 | 数据库   |
-| **HikariCP**        | 5.0.1  | 连接池   |
-| **JWT**             | 0.12.3 | JWT 支持 |
-| **OpenAPI**         | 2.3.0  | API 文档 |
-| **Java**            | 21     | 运行环境 |
+| Technology          | Version | Description         |
+| ------------------- | ------- | ------------------- |
+| **Spring Boot**     | 3.2.5   | Core framework      |
+| **Spring Security** | 6.2.4   | Security framework  |
+| **MyBatis-Plus**    | 3.5.6   | ORM framework       |
+| **SQLite**          | 3.43.2  | Database            |
+| **HikariCP**        | 5.0.1   | Connection pool     |
+| **JWT**             | 0.12.3  | JWT support         |
+| **OpenAPI**         | 2.3.0   | API documentation   |
+| **Java**            | 21      | Runtime environment |
 
-## 📋 快速开始
+## 📋 Quick Start
 
-### 环境要求
+### Prerequisites
 
 - Java 21+
 - Maven 3.6+
 
-### 启动应用
+### Start Application
 
 ```bash
-# 克隆项目
+# Clone the project
 git clone <repository-url>
 cd on-site-interview
 
-# 编译项目
+# Compile the project
 mvn clean compile
 
-# 启动应用
+# Start the application
 mvn spring-boot:run
 ```
 
-应用将在 `http://localhost:8080` 启动。
+The application will start at `http://localhost:8080`.
 
-### 默认用户账号
+### Default User Accounts
 
-| 用户名  | 密码    | 角色  | 说明       |
-| ------- | ------- | ----- | ---------- |
-| `admin` | `admin` | ADMIN | 系统管理员 |
-| `user1` | `admin` | USER  | 普通用户   |
-| `user2` | `admin` | USER  | 普通用户   |
-| `guest` | `admin` | GUEST | 访客用户   |
+| Username | Password | Role  | Description          |
+| -------- | -------- | ----- | -------------------- |
+| `admin`  | `admin`  | ADMIN | System administrator |
+| `user1`  | `admin`  | USER  | Regular user         |
+| `user2`  | `admin`  | USER  | Regular user         |
+| `guest`  | `admin`  | GUEST | Guest user           |
 
-## 🧪 API 测试
+## 🧪 API Testing
 
-### 1. 健康检查
+### 1. Health Check
 
 ```bash
 curl http://localhost:8080/actuator/health
 ```
 
-### 2. 测试端点
+### 2. Test Endpoints
 
 ```bash
-# Hello World 测试
+# Hello World test
 curl http://localhost:8080/api/test/hello
 
-# 服务健康检查
+# Service health check
 curl http://localhost:8080/api/test/health
 
-# 雪花ID生成测试
+# Snowflake ID generation test
 curl http://localhost:8080/api/test/snowflake/generate
 ```
 
-### 3. 用户认证
+### 3. User Authentication
 
 ```bash
-# 用户登录
+# User login
 curl -X POST http://localhost:8080/api/auth/login \
   -H "Content-Type: application/json" \
   -d '{"username":"admin","password":"admin"}'
 
-# 用户注册
+# User registration
 curl -X POST http://localhost:8080/api/auth/register \
   -H "Content-Type: application/json" \
   -d '{
@@ -98,17 +98,17 @@ curl -X POST http://localhost:8080/api/auth/register \
   }'
 ```
 
-### 4. 用户管理 (需要认证)
+### 4. User Management (Authentication Required)
 
 ```bash
-# 获取JWT Token后，在请求头中添加：
+# After obtaining JWT token, add to request header:
 # Authorization: Bearer <your-jwt-token>
 
-# 获取用户列表
+# Get user list
 curl -H "Authorization: Bearer <token>" \
   http://localhost:8080/api/users
 
-# 创建用户
+# Create user
 curl -X POST http://localhost:8080/api/users \
   -H "Content-Type: application/json" \
   -H "Authorization: Bearer <token>" \
@@ -120,83 +120,83 @@ curl -X POST http://localhost:8080/api/users \
   }'
 ```
 
-## 📖 API 文档
+## 📖 API Documentation
 
-启动应用后，访问以下地址查看完整的 API 文档：
+After starting the application, visit the following URLs to view complete API documentation:
 
 - **Swagger UI**: http://localhost:8080/swagger-ui.html
 - **OpenAPI JSON**: http://localhost:8080/v3/api-docs
 
-## 🏗️ 项目结构
+## 🏗️ Project Structure
 
 ```
 src/main/java/com/streamnz/
-├── Main.java                    # 应用入口
-├── annotation/                  # 自定义注解
-├── config/                      # 配置类
-│   ├── security/               # 安全配置
-│   ├── database/               # 数据库配置
-│   ├── SwaggerConfig.java      # API文档配置
-│   └── JacksonConfig.java      # JSON配置
-├── controller/                  # REST控制器
-├── service/                     # 业务逻辑层
-├── mapper/                      # 数据访问层
-├── model/                       # 数据模型
-│   ├── entity/                 # 实体类
-│   ├── dto/                    # 数据传输对象
-│   ├── vo/                     # 视图对象
-│   └── security/               # 安全相关模型
-├── filter/                      # 过滤器
-├── interceptor/                 # 拦截器
-├── exception/                   # 异常处理
-├── util/                        # 工具类
-├── enums/                       # 枚举类
-└── constant/                    # 常量类
+├── Main.java                    # Application entry point
+├── annotation/                  # Custom annotations
+├── config/                      # Configuration classes
+│   ├── security/               # Security configuration
+│   ├── database/               # Database configuration
+│   ├── SwaggerConfig.java      # API documentation config
+│   └── JacksonConfig.java      # JSON configuration
+├── controller/                  # REST controllers
+├── service/                     # Business logic layer
+├── mapper/                      # Data access layer
+├── model/                       # Data models
+│   ├── entity/                 # Entity classes
+│   ├── dto/                    # Data transfer objects
+│   ├── vo/                     # View objects
+│   └── security/               # Security-related models
+├── filter/                      # Filters
+├── interceptor/                 # Interceptors
+├── exception/                   # Exception handling
+├── util/                        # Utility classes
+├── enums/                       # Enum classes
+└── constant/                    # Constant classes
 ```
 
-## 🔧 配置说明
+## 🔧 Configuration
 
-### 数据库配置
+### Database Configuration
 
-应用使用 SQLite 数据库，数据库文件位于 `sql-lite/identifier.sqlite`。
+The application uses SQLite database, with the database file located at `sql-lite/identifier.sqlite`.
 
-### JWT 配置
+### JWT Configuration
 
-JWT 相关配置在 `application.yml` 中：
+JWT-related configuration in `application.yml`:
 
 ```yaml
 jwt:
   secret: your-secret-key-here-make-it-long-enough-for-security-at-least-256-bits
-  expiration: 86400000 # 24小时 (毫秒)
+  expiration: 86400000 # 24 hours (milliseconds)
 ```
 
-### 连接池监控
+### Connection Pool Monitoring
 
-访问 `http://localhost:8080/actuator/hikaricp` 查看连接池状态。
+Visit `http://localhost:8080/actuator/hikaricp` to view connection pool status.
 
-## 🚨 已知问题
+## 🚨 Known Issues
 
-1. **认证问题**: 当前登录接口存在 500 错误，可能是数据库初始化或认证配置问题
-2. **用户密码**: 所有默认用户密码都是 `admin`，建议生产环境修改
+1. **Authentication Issues**: Current login endpoint has 500 errors, possibly due to database initialization or authentication configuration issues
+2. **User Passwords**: All default user passwords are `admin`, recommend changing for production environment
 
-## 🔄 开发状态
+## 🔄 Development Status
 
-- ✅ 基础框架搭建完成
-- ✅ 数据库模型设计完成
-- ✅ API 接口定义完成
-- ✅ Swagger 文档配置完成
-- ⚠️ 用户认证功能需要调试
-- ⚠️ 权限控制需要完善测试
-- ⚠️ 单元测试需要补充
+- ✅ Basic framework setup completed
+- ✅ Database model design completed
+- ✅ API interface definitions completed
+- ✅ Swagger documentation configuration completed
+- ⚠️ User authentication functionality needs debugging
+- ⚠️ Permission control needs comprehensive testing
+- ⚠️ Unit tests need supplementation
 
-## 📞 支持
+## 📞 Support
 
-如有问题，请查看：
+If you encounter issues, please check:
 
-1. 应用日志输出
-2. Swagger API 文档
-3. 数据库初始化脚本
+1. Application log output
+2. Swagger API documentation
+3. Database initialization scripts
 
 ---
 
-**注意**: 这是一个开发版本，不建议直接用于生产环境。
+**Note**: This is a development version and is not recommended for direct production use.

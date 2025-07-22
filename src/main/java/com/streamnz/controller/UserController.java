@@ -53,7 +53,7 @@ public class UserController {
         queryDTO.setEmail(email);
         
         Page<User> userPage = userService.pageQueryWithConditions(current, size, queryDTO);
-        // 构造UserVO时查出角色
+        // Query roles when constructing UserVO
         PageVO<UserVO> pageVO = new PageVO<>(userPage, user -> {
             List<Role> roles = roleMapper.findRolesByUserId(user.getId());
             String[] roleArr = roles.stream().map(Role::getName).toArray(String[]::new);
